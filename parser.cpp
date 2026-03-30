@@ -1,5 +1,5 @@
 #include "parser.h"
-#include "Graph.h"
+#include "graph.h"
 #include <stdexcept>
 
 GraphParser::~GraphParser() {} //хуйня для корректной очистки памяти в мэйне иначе все плохо, называется деструктор, внутри кода быть не должно, за это отвечает ~
@@ -50,7 +50,7 @@ void EdgeListParser::parse(istream& input, Graph& graph)
     // Шаг 3: Создаем все вершины (до добавления ребер)
     for (size_t i = 0; i <= max_vershina; i++)
     {
-        graph.add_vershina(); //надо прописать код в файле с классом графа
+        graph.add_Vershina(); //надо прописать код в файле с классом графа
     }
 
     // Шаг 4: Добавляем ребра (цикл с шагом 2)
@@ -58,7 +58,7 @@ void EdgeListParser::parse(istream& input, Graph& graph)
     {
         size_t u = vse_chisla[i];
         size_t v = vse_chisla[i + 1];
-        graph.add_rebro(u + 1, v + 1);  //0 -> 1
+        graph.add_Rebro(u + 1, v + 1);  //0 -> 1
     }
 }
 
@@ -70,7 +70,7 @@ void MatrixParser::parse(istream& input, Graph& graph)
     // создаем вершины
     for (size_t i = 0; i < n; i++)
     {
-        graph.add_vershina();
+        graph.add_Vershina();
     }
     
     // читаем и добавляем
@@ -83,7 +83,7 @@ void MatrixParser::parse(istream& input, Graph& graph)
             // Если в матрице 1 - значит есть ребро из i в j
             if (value == 1)
             {
-                graph.add_rebro(i, j);
+                graph.add_Rebro(i, j);
             }
         }
     }
@@ -132,7 +132,7 @@ void DIMACSParser::parse(istream& input, Graph& graph)
             // Создаем вершины заранее
             for (size_t i = 0; i < chislo_vershin; i++)
             {
-                graph.add_vershina();
+                graph.add_Vershina();
             }
 
             zagolovok_nayden = true;
@@ -184,7 +184,7 @@ void DIMACSParser::parse(istream& input, Graph& graph)
     // Добавляем все ребра после создания вершин
     for (size_t i = 0; i < rebra.size(); i++)
     {
-        graph.add_rebro(rebra[i].first, rebra[i].second);
+        graph.add_Rebro(rebra[i].first, rebra[i].second);
     }
 }
 
@@ -243,12 +243,12 @@ void SNAPParser::parse(istream& input, Graph& graph)
     // Создаем все вершины от 0 до max_vershina
     for (size_t i = 0; i <= max_vershina; i++)
     {
-        graph.add_vershina();
+        graph.add_Vershina();
     }
 
     // Добавляем все ребра
     for (size_t i = 0; i < rebra.size(); i++)
     {
-        graph.add_rebro(rebra[i].first, rebra[i].second);
+        graph.add_Rebro(rebra[i].first, rebra[i].second);
     }
 }

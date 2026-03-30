@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include "graph.h"
 using namespace std;
 
 
@@ -13,7 +14,6 @@ int main(int argc, char* argv[]) {
 	string source = "keyboard";
 	string format = "edgelist";
 	string filename = "";
-
 	// Парсинг аргументов
 	for (int i = 1; i < argc; i++) {
 		string arg = argv[i];

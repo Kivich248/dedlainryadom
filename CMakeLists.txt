@@ -6,4 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 add_executable(dedlainryadom main.cpp
         parser.cpp
         parser.cpp
-        parser.h)
+        parser.h
+        test.cpp
+        generator.cpp
+        generator.h
+)
