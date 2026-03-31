@@ -8,12 +8,12 @@
 Graph generate_full(size_t n)
 {
     Graph g;
-    g.add_Vershina_mn(n);
+    g.add_vershiny(n);
     for (int i = 0; i < n; i++)
     {
         for (int j = i+1; j < n; j++)
         {
-            g.add_Rebro(i, j);
+            g.add_rebro(i, j);
         }
     }
 return g;
@@ -22,12 +22,12 @@ return g;
 Graph generate_full_twodol(size_t n, size_t m)
 {
     Graph g;
-    g.add_Vershina_mn(n+m);
+    g.add_vershiny(n+m);
     for (int i = 0; i < n; i++)
     {
         for (int j = n; j < m+n; j++)
         {
-          g.add_Rebro(i, j);
+          g.add_rebro(i, j);
         }
     }
     return g;
@@ -36,10 +36,10 @@ Graph generate_full_twodol(size_t n, size_t m)
 Graph generate_star(size_t n)
 {
     Graph g;
-    g.add_Vershina_mn(n);
+    g.add_vershiny(n);
     for (int i = 1; i < n; i++)
     {
-        g.add_Rebro(0, i);
+        g.add_rebro(0, i);
     }
     return g;
 }
@@ -47,10 +47,10 @@ Graph generate_star(size_t n)
 Graph generate_path(size_t n)
 {
     Graph g;
-    g.add_Vershina_mn(n);
+    g.add_vershiny(n);
     for (int i = 0; i < n - 1; i++)
     {
-        g.add_Rebro(i, i+1);
+        g.add_rebro(i, i+1);
     }
     return g;
 }
@@ -58,29 +58,29 @@ Graph generate_path(size_t n)
 Graph generate_cycle(size_t n)
 {
     Graph g;
-    g.add_Vershina_mn(n);
+    g.add_vershiny(n);
     for (int i = 0; i < n - 1; i++)
     {
-        g.add_Rebro(i, i+1);
+        g.add_rebro(i, i+1);
     }
-    g.add_Rebro(0,n-1);
+    g.add_rebro(0,n-1);
     return g;
 }
 
 Graph generate_wheel(size_t m)
 {
     Graph g;
-    g.add_Vershina_mn(m);
+    g.add_vershiny(m);
     int n = m-1;
     for (int i = 0; i < n - 1; i++)
     {
-        g.add_Rebro(i, i+1);
+        g.add_rebro(i, i+1);
     }
-    g.add_Rebro(0,n-1);
+    g.add_rebro(0,n-1);
 
     for (int i = 0; i < n; i++)
     {
-        g.add_Rebro(m-1, i);
+        g.add_rebro(m-1, i);
     }
    return g;
 }
@@ -89,7 +89,7 @@ Graph generate_random(size_t n, size_t m) {
 
     // Добавляем вершины
     for (size_t i = 0; i < n; i++) {
-        g.add_Vershina();
+        g.add_vershina();
     }
 
     // Максимальное количество рёбер
@@ -116,7 +116,7 @@ Graph generate_random(size_t n, size_t m) {
 
     // Берём первые m рёбер
     for (size_t i = 0; i < m; i++) {
-        g.add_Rebro(all_edges[i].first, all_edges[i].second);
+        g.add_rebro(all_edges[i].first, all_edges[i].second);
     }
 
     return g;
@@ -127,7 +127,7 @@ Graph generate_tree(size_t n) {
 
 
     for (size_t i = 0; i < n; i++) {
-        tree.add_Vershina();
+        tree.add_vershina();
     }
 
 
@@ -135,7 +135,7 @@ Graph generate_tree(size_t n) {
         return tree;
     }
     if (n == 2) {
-        tree.add_Rebro(0, 1);
+        tree.add_rebro(0, 1);
         return tree;
     }
 
@@ -175,7 +175,7 @@ Graph generate_tree(size_t n) {
         }
 
         // Добавляем ребро между leaf и prufer[i]
-        tree.add_Rebro(leaf, prufer[i]);
+        tree.add_rebro(leaf, prufer[i]);
 
         // Удаляем leaf из рассмотрения
         is_leaf[leaf] = false;
@@ -202,7 +202,7 @@ Graph generate_tree(size_t n) {
     }
 
     // Добавляем последнее ребро
-    tree.add_Rebro(last1, last2);
+    tree.add_rebro(last1, last2);
 
     return tree;
 }

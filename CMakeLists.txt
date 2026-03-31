@@ -10,4 +10,7 @@ add_executable(dedlainryadom main.cpp
         test.cpp
         generator.cpp
         generator.h
+        graph.cpp
+        GraphMetrics.h
+        GraphMetrics.cpp
 )
