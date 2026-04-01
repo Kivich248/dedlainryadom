@@ -19,5 +19,8 @@ Graph generate_random(size_t n, size_t m);
 
 Graph generate_tree(size_t n);
 
+Graph random_veroyatnost(size_t n, double p);
 
+Graph generate_random_cubic(size_t n);
 
+Graph generate_graph_with_components(size_t n, size_t k);

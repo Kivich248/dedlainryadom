@@ -1,5 +1,11 @@
 #include "Graph.h"
-
+#include <random>
+#include <set>
+#include <algorithm>
+#include <vector>
+#include <stdexcept>
+#include <queue>
+#include <numeric>
 using namespace std;
 
 // ============================================================================
@@ -222,6 +228,9 @@ void Graph::remove_vershina(size_t m)
 
 
 
+
+
+
 // ============================================================================
 // АТРИБУТЫ ВЕРШИН (0-based API)
 // ============================================================================
@@ -434,6 +443,37 @@ int Graph::get_component_rebra(size_t u, size_t v) const
     }
     return -1;
 }
+std::vector<std::vector<size_t>> Graph::get_components() const {
+    std::vector<std::vector<size_t>> components;
+    std::vector<bool> visited(count_vershiny(), false);
+
+    for (size_t v = 0; v < count_vershiny(); v++) {
+        if (!visited[v]) {
+            std::vector<size_t> component;
+            std::queue<size_t> q;
+
+            visited[v] = true;
+            q.push(v);
+
+            while (!q.empty()) {
+                size_t current = q.front();
+                q.pop();
+                component.push_back(current);
+
+                for (size_t neighbor : get_sosedi(current)) {
+                    if (!visited[neighbor]) {
+                        visited[neighbor] = true;
+                        q.push(neighbor);
+                    }
+                }
+            }
+
+            components.push_back(component);
+        }
+    }
+
+    return components;
+}
 
 // ============================================================================
 // ОБХОД ОКРЕСТНОСТЕЙ (0-based API)
@@ -524,7 +564,65 @@ Graph Graph::operator+(const Graph& other) const {
 
     return result;
 }
+void Graph::random_renumber()           //рандомная перенумерация графа
+{
+    if (vershini.empty()) return;
 
+    size_t n = vershini.size();
+
+    // 1. Создаём случайную перестановку индексов
+    vector<size_t> permutation(n);
+    for (size_t i = 0; i < n; i++) {
+        permutation[i] = i;
+    }
+
+    random_device rd;
+    mt19937 gen(rd());
+    shuffle(permutation.begin(), permutation.end(), gen);
+
+    // 2. Создаём обратное отображение (старый индекс -> новый индекс)
+    vector<size_t> old_to_new(n);
+    for (size_t i = 0; i < n; i++) {
+        old_to_new[permutation[i]] = i;
+    }
+
+    // 3. Переименовываем вершины
+    vector<Vershina> new_vershini(n);
+    for (size_t old_v = 0; old_v < n; old_v++) {
+        size_t new_v = old_to_new[old_v];
+        new_vershini[new_v] = vershini[old_v];
+    }
+    vershini = move(new_vershini);
+
+    // 4. Переименовываем рёбра и перестраиваем структуры
+    vector<Rebro> new_rebro;
+    vector<vector<size_t>> new_inchedent_rebra(n);
+    vector<vector<int>> new_rebra_index(n, vector<int>(n, -1));
+
+    for (const auto& e : rebro) {
+        size_t new_from = old_to_new[e.from];
+        size_t new_to = old_to_new[e.to];
+
+        size_t new_edge_id = new_rebro.size();
+        new_rebro.emplace_back(new_from, new_to);
+        new_rebro.back().color = e.color;
+        new_rebro.back().isBridge = e.isBridge;
+        new_rebro.back().edgeBiconnectedComponent = e.edgeBiconnectedComponent;
+
+        // Добавляем в списки инцидентных рёбер
+        new_inchedent_rebra[new_from].push_back(new_edge_id);
+        new_inchedent_rebra[new_to].push_back(new_edge_id);
+
+        // Обновляем матрицу индексов
+        new_rebra_index[new_from][new_to] = static_cast<int>(new_edge_id);
+        new_rebra_index[new_to][new_from] = static_cast<int>(new_edge_id);
+    }
+
+    // Заменяем старые данные новыми
+    rebro = move(new_rebro);
+    inchedent_rebra = move(new_inchedent_rebra);
+    rebra_index = move(new_rebra_index);
+}
 // ============================================================================
 // ОТЛАДКА И ТЕСТИРОВАНИЕ (вывод 0-based)
 // ============================================================================

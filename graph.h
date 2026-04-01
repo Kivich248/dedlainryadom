@@ -146,6 +146,7 @@ public:
 
     void set_component_rebra(size_t u, size_t v, int comp);
     int get_component_rebra(size_t u, size_t v) const;
+    std::vector<std::vector<size_t>> get_components() const;
 
     // =========================================================================
     // ОБХОД ОКРЕСТНОСТЕЙ
@@ -181,7 +182,7 @@ public:
 
     // Объединение графов (оператор +)
     Graph operator+(const Graph& other) const;
-
+    void random_renumber();
     // =========================================================================
     // ОТЛАДКА И ТЕСТИРОВАНИЕ
     // =========================================================================
@@ -191,4 +192,5 @@ public:
 
     // Проверить корректность внутреннего состояния (инварианты)
     bool validate() const;
+
 };
