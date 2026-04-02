@@ -13,7 +13,7 @@ Graph generate_star(size_t n);
 
 Graph generate_cycle(size_t n);
 
-Graph generate_wheel(size_t m);
+Graph generate_wheel(size_t n);
 
 Graph generate_random(size_t n, size_t m);
 

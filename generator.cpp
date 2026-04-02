@@ -9,100 +9,59 @@
 #include <stdexcept>
 #include <queue>
 #include <numeric>
+
+size_t random_in_range(size_t min_val, size_t max_val)
+{
+    if (min_val >= max_val) {
+        return min_val;
+    }
+    size_t range = max_val - min_val + 1;
+    return min_val + (rand() % range);
+}
+
 Graph generate_full(size_t n)
 {
     Graph g;
     g.add_vershiny(n);
     for (int i = 0; i < n; i++)
     {
-        for (int j = i+1; j < n; j++)
+        for (int j = i + 1; j < n; j++)
         {
             g.add_rebro(i, j);
         }
     }
 return g;
-}
+} // 1
 
 Graph generate_full_twodol(size_t n, size_t m)
 {
     Graph g;
-    g.add_vershiny(n+m);
+    g.add_vershiny(n + m);
     for (int i = 0; i < n; i++)
     {
-        for (int j = n; j < m+n; j++)
+        for (int j = n; j < m + n; j++)
         {
           g.add_rebro(i, j);
         }
     }
     return g;
-}
+} // 2
 
-Graph generate_star(size_t n)
+Graph generate_tree(size_t n)
 {
-    Graph g;
-    g.add_vershiny(n);
-    for (int i = 1; i < n; i++)
-    {
-        g.add_rebro(0, i);
-    }
-    return g;
-}
-
-Graph generate_path(size_t n)
-{
-    Graph g;
-    g.add_vershiny(n);
-    for (int i = 0; i < n - 1; i++)
-    {
-        g.add_rebro(i, i+1);
-    }
-    return g;
-}
-
-Graph generate_cycle(size_t n)
-{
-    Graph g;
-    g.add_vershiny(n);
-    for (int i = 0; i < n - 1; i++)
-    {
-        g.add_rebro(i, i+1);
-    }
-    g.add_rebro(0,n-1);
-    return g;
-}
-
-Graph generate_wheel(size_t m)
-{
-    Graph g;
-    g.add_vershiny(m);
-    int n = m-1;
-    for (int i = 0; i < n - 1; i++)
-    {
-        g.add_rebro(i, i+1);
-    }
-    g.add_rebro(0,n-1);
-
-    for (int i = 0; i < n; i++)
-    {
-        g.add_rebro(m-1, i);
-    }
-   return g;
-}
-
-
-Graph generate_tree(size_t n) {
     Graph tree;
 
-
-    for (size_t i = 0; i < n; i++) {
+    for (size_t i = 0; i < n; i++)
+    {
         tree.add_vershina();
     }
 
-
-    if (n <= 1) {
+    if (n <= 1)
+    {
         return tree;
     }
-    if (n == 2) {
+    if (n == 2)
+    {
         tree.add_rebro(0, 1);
         return tree;
     }
@@ -167,37 +126,88 @@ Graph generate_tree(size_t n) {
     tree.add_rebro(last1, last2);
 
     return tree;
-}
+} // 3
 
-  Graph random_veroyatnost(size_t n, double p) {        //окааааазывается это граф с n вершинами и вероятностью p добавления ребра
-        Graph g;
+Graph generate_star(size_t n)
+{
+    Graph g;
+    g.add_vershiny(n);
+    for (int i = 1; i < n; i++)
+    {
+        g.add_rebro(0, i);
+    }
+    return g;
+} // 4
 
-       g.add_vershiny(n);
+Graph generate_cycle(size_t n)
+{
+    Graph g;
+    g.add_vershiny(n);
+    for (int i = 0; i < n - 1; i++)
+    {
+        g.add_rebro(i, i + 1);
+    }
+    g.add_rebro(0,n - 1);
+    return g;
+} // 5
 
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<double> dist(0.0, 1.0);
+Graph generate_path(size_t n)
+{
+    Graph g;
+    g.add_vershiny(n);
+    for (int i = 0; i < n - 1; i++)
+    {
+        g.add_rebro(i, i + 1);
+    }
+    return g;
+} // 6
 
-        for (size_t i = 0; i < n; i++) {
-            for (size_t j = i + 1; j < n; j++) {
-                if (dist(gen) < p) {
-                    g.add_rebro(i, j);
-                }
+Graph generate_wheel(size_t n)
+{
+    Graph g;
+    g.add_vershiny(n);
+    int m = n - 1;
+    for (int i = 0; i < m - 1; i++)
+    {
+        g.add_rebro(i, i + 1);
+    }
+    g.add_rebro(0,m - 1);
+
+    for (int i = 0; i < m; i++)
+    {
+        g.add_rebro(n - 1, i);
+    }
+   return g;
+} // 7
+
+Graph random_veroyatnost(size_t n, double p) {        //окааааазывается это граф с n вершинами и вероятностью p добавления ребра
+    Graph g;
+
+    g.add_vershiny(n);
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dist(0.0, 1.0);
+
+    for (size_t i = 0; i < n; i++) {
+        for (size_t j = i + 1; j < n; j++) {
+            if (dist(gen) < p) {
+                g.add_rebro(i, j);
             }
         }
-
-        return g;
     }
 
-
-
+    return g;
+} // 8
 
 Graph generate_random_cubic(size_t n) {             //кубический граф как ты и сказал, делим вершины на 3 и соединяем
 
-    if (n % 2 != 0) {
+    if (n % 2 != 0)
+    {
         throw std::invalid_argument("Кубический граф требует чётное количество вершин!");
     }
-    if (n < 4) {
+    if (n < 4)
+    {
         throw std::invalid_argument("Кубический граф должен иметь хотя бы 4 вершины!");
     }
     Graph g;
@@ -205,8 +215,10 @@ Graph generate_random_cubic(size_t n) {             //кубический гр�
     g.add_vershiny(n);
 
     std::vector<size_t> stubs;
-    for (size_t v = 0; v < n; v++) {
-        for (size_t i = 0; i < 3; i++) {
+    for (size_t v = 0; v < n; v++)
+    {
+        for (size_t i = 0; i < 3; i++)
+        {
             stubs.push_back(v);
         }
     }
@@ -215,17 +227,18 @@ Graph generate_random_cubic(size_t n) {             //кубический гр�
     std::mt19937 gen(rd());
     std::shuffle(stubs.begin(), stubs.end(), gen);
 
-    for (size_t i = 0; i < stubs.size(); i += 2) {
+    for (size_t i = 0; i < stubs.size(); i += 2)
+    {
         size_t u = stubs[i];
         size_t v = stubs[i + 1];
 
-        if (u == v) {
-
+        if (u == v)
+        {
             return generate_random_cubic(n);
         }
 
-
-        if (g.has_rebro(u, v)) {
+        if (g.has_rebro(u, v))
+        {
             return generate_random_cubic(n);
         }
 
@@ -233,7 +246,7 @@ Graph generate_random_cubic(size_t n) {             //кубический гр�
     }
 
     return g;
-}
+} // 9
 
 Graph generate_graph_with_components(size_t n, size_t k) {     //проблема - генерит ребра с фиксированной вероятностью
     if (k > n) k = n;
@@ -248,7 +261,8 @@ Graph generate_graph_with_components(size_t n, size_t k) {     //проблем�
     std::vector<size_t> component_sizes(k, 1);  // каждой компоненте минимум 1 вершина
     size_t remaining = n - k;
 
-    for (size_t i = 0; i < remaining; i++) {
+    for (size_t i = 0; i < remaining; i++)
+    {
         component_sizes[comp_dist(gen)]++;
     }
 
@@ -293,6 +307,102 @@ Graph generate_graph_with_components(size_t n, size_t k) {     //проблем�
     result.random_renumber();
 
     return result;
-}
+}  // 10
+
+Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m)
+{
+
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_real_distribution<double> prob_dist(0.0, 1.0);
+    uniform_int_distribution<size_t> vertex_dist;
+
+    if (n < 3) {
+        throw invalid_argument("Minimalnoe kolichestvo vershin: 3");
+    }
+    if (m > n - 1) {
+        throw invalid_argument(
+            "Maksimum mostov: " + to_string(n - 1) +
+            ", polucheno: " + to_string(m)
+        );
+    }
 
 
+    if (m == 0) {
+        return generate_2connected_graph_random(n, rd());
+    }
+    if (m == n - 1) {
+        return generate_path(n);
+    }
+
+    Graph g;
+    g.add_vershiny(n);
+
+    size_t vershini_pyti = m + 1;  // Вершины пути: 0, 1, 2, ..., m
+
+    for (size_t i = 0; i < m; i++)
+    {
+        g.add_rebro(i, i + 1);
+    }
+
+    size_t ost_vershini = n - vershini_pyti;
+    size_t vershina_now = vershini_pyti;
+
+    const size_t MIN_VERTICES_PER_BLOB = 2;
+
+    while (ost_vershini >= MIN_VERTICES_PER_BLOB) {
+        vertex_dist = uniform_int_distribution<size_t>(0, vershini_pyti - 1);
+        size_t vershina_pyti = vertex_dist(gen);
+
+
+        vertex_dist = uniform_int_distribution<size_t>(MIN_VERTICES_PER_BLOB, ost_vershini);
+        size_t blob_size = vertex_dist(gen);
+
+        if (blob_size == ost_vershini - 1) {
+            blob_size = ost_vershini;
+        }
+
+        vector<size_t> vershini_bloba;
+        vershini_bloba.push_back(vershina_pyti);
+
+        for (size_t i = 0; i < blob_size; i++) {
+            vershini_bloba.push_back(vershina_now + i);
+        }
+
+
+        size_t k = vershini_bloba.size() - 1;  // Количество вершин в блоке
+        if (k >= 2) {
+            for (size_t i = 1; i < k; i++) {
+                g.add_rebro(vershini_bloba[i], vershini_bloba[i + 1]);
+            }
+            g.add_rebro(vershini_bloba[1], vershina_pyti);
+            g.add_rebro(vershini_bloba[k], vershina_pyti);
+        }
+
+        double edge_prob = prob_dist(gen);
+
+
+        for (size_t i = 1; i < vershini_bloba.size(); i++) {
+            for (size_t j = i + 1; j < vershini_bloba.size(); j++) {
+                size_t u = vershini_bloba[i];
+                size_t v = vershini_bloba[j];
+
+                if (!g.has_rebro(u, v)) {
+                    double random_val = prob_dist(gen);
+                    if (random_val < edge_prob) {
+                        g.add_rebro(u, v);
+                    }
+                }
+            }
+        }
+
+        vershina_now += blob_size;
+        ost_vershini -= blob_size;
+    }
+
+    return g;
+} // 11, маш, допиши пж функцию графа без мостов и подправь код функции если видишь в чем
+// случай с m = n - 2 нужно отдельно рассмотреть еще
+// добавь пж активацию флагов моста и точки сочленениня
+
+// 12 по точкам, у нас m мостов = m + 1 точка, нужно ток прописать для 1 точки (две компоненты рандомных размеров, сумма вершин n + 1, соединить по вершине)
