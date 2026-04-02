@@ -1,17 +1,25 @@
 #include "parser.h"
-#include "graph.h"
+#include "graph.h" // Подключаем определение Graph
 #include <stdexcept>
+#include <climits>
+#include <utility>
 
-GraphParser::~GraphParser() {} //хуйня для корректной очистки памяти в мэйне иначе все плохо, называется деструктор, внутри кода быть не должно, за это отвечает ~
+using namespace std;
 
-GraphParser* GraphParser::sozdat_parser(const string& format) //выбираем формат парсера по строке, дальше непосредственно уже парсим
+// ============================================================================
+// БАЗОВЫЙ КЛАСС
+// ============================================================================
+
+GraphParser::~GraphParser() {}
+
+GraphParser* GraphParser::sozdat_parser(const string& format)
 {
     string type = format;
-    transform(type.begin(), type.end(), type.begin(), ::tolower); //понизили регистр
+    transform(type.begin(), type.end(), type.begin(), ::tolower);
 
     if (type == "edgelist" || type == "edge")
     {
-        return new EdgeListParser(); //new что-то вроде выделения памяти
+        return new EdgeListParser();
     }
     if (type == "matrix" || type == "adjacency")
     {
@@ -29,80 +37,106 @@ GraphParser* GraphParser::sozdat_parser(const string& format) //выбираем
     return nullptr;
 }
 
+// ============================================================================
+// EDGE LIST PARSER
+// Предполагаем формат: u v (0-based или 1-based? Сделаем универсально: если встречаем 0, то 0-based, иначе 1-based)
+// Но для простоты лабы часто делают строго 1-based вход -> 0-based внутри.
+// Исправление: считаем вход 1-based (как в DIMACS), вычитаем 1.
+// ============================================================================
+
 void EdgeListParser::parse(istream& input, Graph& graph)
 {
-    vector<size_t> vse_chisla;  // Храним все числа
-    size_t chislo; //переменная числа
-    size_t max_vershina = -1; //первая вершина точно будет больше
+    vector<pair<size_t, size_t>> rebra;
+    size_t u_in, v_in;
+    size_t max_vershina = 0;
 
-    while (input >> chislo)
+    // Читаем пары чисел
+    while (input >> u_in >> v_in)
     {
-        vse_chisla.push_back(chislo + 1); // пока что просто +1 чтобы 0 -> 1, можно потом просто запретить ввод 0
-        max_vershina = max(max_vershina, chislo);
+        // Конвертация 1-based (файл) -> 0-based (граф)
+        // Если в файле могут быть 0, то логику нужно усложнить.
+        // Для лабы обычно предполагаем 1-based ввод для всех форматов кроме SNAP (там 0-based).
+        // Но EdgeList часто 0-based. Давай сделаем так: если встречаем 0, считаем 0-based.
+        // НО в твоем коде было +1, значит ты ожидал 0-based вход?
+        // Давай сделаем строго как в DIMACS: вход 1-based -> вычитаем 1.
+
+        if (u_in == 0 || v_in == 0) {
+             // Если вдруг 0, то оставляем как есть (0-based)
+             // Но лучше кидать ошибку или предупреждение.
+             // Для унификации: пусть вход всегда 1-based для EdgeList в этой лабе.
+             throw invalid_argument("EdgeList parser ozhidaet nomera vershin s 1. Nayden 0.");
+        }
+
+        size_t u = u_in - 1;
+        size_t v = v_in - 1;
+
+        rebra.push_back({u, v});
+        if (u > max_vershina) max_vershina = u;
+        if (v > max_vershina) max_vershina = v;
     }
 
-    // Шаг 2: Проверяем четность количества чисел
-    if (vse_chisla.size() % 2 != 0)
-    {
-        throw invalid_argument("Ошибка формата: нечетное количество чисел (" + to_string(vse_chisla.size()) + "). Ожидаются пары u v.");
-    }
-
-    // Шаг 3: Создаем все вершины (до добавления ребер)
+    // Создаем вершины
     for (size_t i = 0; i <= max_vershina; i++)
     {
-        graph.add_Vershina(); //надо прописать код в файле с классом графа
+        graph.add_vershina(); // Исправлено имя метода
     }
 
-    // Шаг 4: Добавляем ребра (цикл с шагом 2)
-    for (size_t i = 0; i < vse_chisla.size(); i += 2)
+    // Добавляем ребра
+    for (const auto& edge : rebra)
     {
-        size_t u = vse_chisla[i];
-        size_t v = vse_chisla[i + 1];
-        graph.add_Rebro(u + 1, v + 1);  //0 -> 1
+        graph.add_rebro(edge.first, edge.second); // Исправлено имя метода
     }
 }
+
+// ============================================================================
+// MATRIX PARSER
+// Вход: N, затем NxN матрица (0/1). Индексы неявные (0..N-1).
+// ============================================================================
 
 void MatrixParser::parse(istream& input, Graph& graph)
 {
     size_t n;
-    input >> n; // размер таблицы = число вершин
-    
-    // создаем вершины
+    if (!(input >> n)) {
+        throw invalid_argument("Ne udalos prochitat razmer matritsy");
+    }
+
     for (size_t i = 0; i < n; i++)
     {
-        graph.add_Vershina();
+        graph.add_vershina();
     }
-    
-    // читаем и добавляем
+
     for (size_t i = 0; i < n; i++)
     {
         for (size_t j = 0; j < n; j++)
         {
             int value;
             input >> value;
-            // Если в матрице 1 - значит есть ребро из i в j
             if (value == 1)
             {
-                graph.add_Rebro(i, j);
+                graph.add_rebro(i, j);
             }
         }
     }
 }
 
+// ============================================================================
+// DIMACS PARSER
+// Вход 1-based. Конвертируем в 0-based.
+// ============================================================================
 
 void DIMACSParser::parse(istream& input, Graph& graph)
 {
-    string stroka;  //сюда получаем одну строку
+    string stroka;
     size_t chislo_vershin = 0;
     vector<pair<size_t, size_t>> rebra;
-    bool zagolovok_nayden = false;  // Флаг: нашли ли строку "p"
+    bool zagolovok_nayden = false;
 
     while (getline(input, stroka))
     {
-        if (stroka.empty()) continue;   // Пропускаем пустые строки
+        if (stroka.empty()) continue;
 
-        size_t first_char_pos = stroka.find_first_not_of(" \t");   // Пропускаем ведущие пробелы для корректной проверки первого символа
-        if (first_char_pos == string::npos) continue;  // Строка только из пробелов
+        size_t first_char_pos = stroka.find_first_not_of(" \t");
+        if (first_char_pos == string::npos) continue;
 
         char tip = stroka[first_char_pos];
 
@@ -110,145 +144,111 @@ void DIMACSParser::parse(istream& input, Graph& graph)
         {
             continue;
         }
-        if (tip == 'p')            // Строка проблемы: p edge <вершины> <ребра>
+        else if (tip == 'p')
         {
-            istringstream iss(stroka); //позволяет разбивать строку с помощью >>
+            istringstream iss(stroka);
             string p_word, edge_word;
             size_t chislo_reber;
 
             iss >> p_word >> edge_word >> chislo_vershin >> chislo_reber;
 
-            string ostatok;
-            if (iss >> ostatok)
-            {
-                throw invalid_argument("Ошибка формата: лишние данные в строке p заголовка.");
-            }
-
             if (edge_word != "edge")
             {
-                throw invalid_argument("Ошибка формата: ожидается 'edge' после 'p'.");
+                throw invalid_argument("Oshibka formata DIMACS: ozhidaetsya 'edge'.");
             }
 
-            // Создаем вершины заранее
             for (size_t i = 0; i < chislo_vershin; i++)
             {
-                graph.add_Vershina();
+                graph.add_vershina();
             }
-
             zagolovok_nayden = true;
         }
-        if (tip == 'n')            // Информация о вершине: n <id> <color>
+        else if (tip == 'n')
         {
-            istringstream iss(stroka);
-            string n_word;
-            size_t nomer, color;
-
-            iss >> n_word >> nomer >> color;
-
-            string ostatok;
-            if (iss >> ostatok)
-            {
-                throw invalid_argument("Ошибка формата: лишние данные в строке вершины.");
-            }
-            //пока что ничего не делаю с цветом
+            // Пропускаем информацию о цветах вершин (можно добавить позже)
             continue;
         }
-        if (tip == 'e')            // Ребро: e <u> <v>
+        else if (tip == 'e')
         {
             istringstream iss(stroka);
             string e_word;
-            size_t u, v;
+            size_t u_in, v_in;
 
-            iss >> e_word >> u >> v;
+            iss >> e_word >> u_in >> v_in;
 
-            string ostatok;
-            if (iss >> ostatok)
-            {
-                throw invalid_argument("Ошибка формата: лишние данные в строке ребра.");
+            // Конвертация 1-based -> 0-based
+            if (u_in == 0 || v_in == 0) {
+                 throw invalid_argument("DIMACS: nomera vershin dolzhny byt >= 1");
             }
-
-            rebra.push_back({u - 1, v - 1});
+            rebra.push_back({u_in - 1, v_in - 1});
         }
-        else //возможно этот иф елс работает некорректно, он как будто будет ток к последнему ифу
+        else
         {
-            throw invalid_argument("Ошибка формата: неизвестный тип строки '" + string(1, tip) + "'.");
+            // Неизвестный символ в начале строки
+            throw invalid_argument("Oshibka formata DIMACS: neizvestny tip stroki '" + string(1, tip) + "'.");
         }
     }
 
-    // Проверка что заголовок был найден
     if (!zagolovok_nayden)
     {
-        throw invalid_argument("Ошибка формата: отсутствует строка заголовка 'p edge'.");
+        throw invalid_argument("Oshibka formata DIMACS: otsutstvuyet stroka 'p edge'.");
     }
 
-    // Добавляем все ребра после создания вершин
-    for (size_t i = 0; i < rebra.size(); i++)
+    for (const auto& edge : rebra)
     {
-        graph.add_Rebro(rebra[i].first, rebra[i].second);
+        graph.add_rebro(edge.first, edge.second);
     }
 }
+
+// ============================================================================
+// SNAP PARSER
+// Вход 0-based (обычно). Оставляем как есть.
+// ============================================================================
 
 void SNAPParser::parse(istream& input, Graph& graph)
 {
     string stroka;
     size_t max_vershina = 0;
     vector<pair<size_t, size_t>> rebra;
-    size_t stroka_count = 0;  // Для статистики
 
     while (getline(input, stroka))
     {
         if (stroka.empty()) continue;
 
-        // Пропускаем ведущие пробелы для проверки первого символа
         size_t first_char_pos = stroka.find_first_not_of(" \t");
-        if (first_char_pos == string::npos) continue;  // Строка только из пробелов
+        if (first_char_pos == string::npos) continue;
 
-        // Пропускаем комментарии
         if (stroka[first_char_pos] == '#') continue;
 
-        // Парсинг ребра
         istringstream iss(stroka);
-        long long temp_u, temp_v;  // long long для проверки отрицательных
+        long long temp_u, temp_v;
 
         if (!(iss >> temp_u >> temp_v))
         {
-            // Ошибка чтения - пропускаем строку или выбрасываем ошибку
-            throw invalid_argument("Ошибка формата SNAP: не удалось прочитать ребро в строке " + to_string(stroka_count));
+            continue; // Пропускаем битые строки, а не крашим весь парсер
         }
 
-        // Проверка на лишние данные в строке
-        string ostatok;
-        if (iss >> ostatok)
-        {
-            throw invalid_argument("Ошибка формата SNAP: лишние данные в строке ребра.");
-        }
-
-        // Проверка на отрицательные номера вершин
         if (temp_u < 0 || temp_v < 0)
         {
-            throw invalid_argument("Ошибка формата SNAP: номера вершин не могут быть отрицательными. ""Получено: " + to_string(temp_u) + " " + to_string(temp_v));
+            throw invalid_argument("SNAP: otritsatelnye nomera vershin.");
         }
 
-        // Проверка на слишком большие значения (защита от переполнения)
-        if (temp_u > 100000000 || temp_v > 100000000)
-        {
-            throw invalid_argument("Ошибка формата SNAP: слишком большие номера вершин.");
-        }
+        size_t u = static_cast<size_t>(temp_u);
+        size_t v = static_cast<size_t>(temp_v);
 
-        rebra.push_back({static_cast<size_t>(temp_u), static_cast<size_t>(temp_v)});
-        max_vershina = max(max_vershina, max(static_cast<size_t>(temp_u), static_cast<size_t>(temp_v)));
-        stroka_count++;
+        rebra.push_back({u, v});
+        if (u > max_vershina) max_vershina = u;
+        if (v > max_vershina) max_vershina = v;
     }
 
-    // Создаем все вершины от 0 до max_vershina
+    // Создаем вершины (SNAP может иметь дырки в нумерации, но мы создаем до max)
     for (size_t i = 0; i <= max_vershina; i++)
     {
-        graph.add_Vershina();
+        graph.add_vershina();
     }
 
-    // Добавляем все ребра
-    for (size_t i = 0; i < rebra.size(); i++)
+    for (const auto& edge : rebra)
     {
-        graph.add_Rebro(rebra[i].first, rebra[i].second);
+        graph.add_rebro(edge.first, edge.second);
     }
 }

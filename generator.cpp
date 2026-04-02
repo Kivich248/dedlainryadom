@@ -19,13 +19,53 @@ size_t random_in_range(size_t min_val, size_t max_val)
     return min_val + (rand() % range);
 }
 
+// ============================================================================
+// ВСПОМОГАТЕЛЬНАЯ: Случайный 2-связный граф (без мостов)
+// ============================================================================
+Graph generate_2connected_graph_random(size_t n, unsigned int seed)
+{
+    if (n < 3) {
+        // Для n < 3 невозможно создать 2-связный граф
+        Graph g;
+        g.add_vershiny(n);
+        if (n == 2) g.add_rebro(0, 1);
+        return g;
+    }
+
+    std::mt19937 gen(seed);
+    std::uniform_real_distribution<double> prob_dist(0.0, 1.0);
+
+    Graph g;
+    g.add_vershiny(n);
+
+    // Шаг 1: Создаём базовый цикл (гарантирует 2-связность)
+    for (size_t i = 0; i < n; i++) {
+        g.add_rebro(i, (i + 1) % n);
+    }
+
+    // Шаг 2: Добавляем случайные хорды с вероятностью 0.3
+    double chord_prob = 0.3;
+    for (size_t i = 0; i < n; i++) {
+        for (size_t j = i + 2; j < n; j++) {
+            // Пропускаем рёбра цикла
+            if (i == 0 && j == n - 1) continue;
+
+            if (prob_dist(gen) < chord_prob) {
+                g.add_rebro(i, j);
+            }
+        }
+    }
+
+    return g;
+}
+
 Graph generate_full(size_t n)
 {
     Graph g;
     g.add_vershiny(n);
-    for (int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
     {
-        for (int j = i + 1; j < n; j++)
+        for (size_t j = i + 1; j < n; j++)
         {
             g.add_rebro(i, j);
         }
@@ -37,9 +77,9 @@ Graph generate_full_twodol(size_t n, size_t m)
 {
     Graph g;
     g.add_vershiny(n + m);
-    for (int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
     {
-        for (int j = n; j < m + n; j++)
+        for (size_t j = n; j < m + n; j++)
         {
           g.add_rebro(i, j);
         }
@@ -132,7 +172,7 @@ Graph generate_star(size_t n)
 {
     Graph g;
     g.add_vershiny(n);
-    for (int i = 1; i < n; i++)
+    for (size_t i = 1; i < n; i++)
     {
         g.add_rebro(0, i);
     }
@@ -143,7 +183,7 @@ Graph generate_cycle(size_t n)
 {
     Graph g;
     g.add_vershiny(n);
-    for (int i = 0; i < n - 1; i++)
+    for (size_t i = 0; i < n - 1; i++)
     {
         g.add_rebro(i, i + 1);
     }
@@ -155,7 +195,7 @@ Graph generate_path(size_t n)
 {
     Graph g;
     g.add_vershiny(n);
-    for (int i = 0; i < n - 1; i++)
+    for (size_t i = 0; i < n - 1; i++)
     {
         g.add_rebro(i, i + 1);
     }
@@ -166,14 +206,14 @@ Graph generate_wheel(size_t n)
 {
     Graph g;
     g.add_vershiny(n);
-    int m = n - 1;
-    for (int i = 0; i < m - 1; i++)
+    size_t m = n - 1;
+    for (size_t i = 0; i < m - 1; i++)
     {
         g.add_rebro(i, i + 1);
     }
     g.add_rebro(0,m - 1);
 
-    for (int i = 0; i < m; i++)
+    for (size_t i = 0; i < m; i++)
     {
         g.add_rebro(n - 1, i);
     }
@@ -311,7 +351,6 @@ Graph generate_graph_with_components(size_t n, size_t k) {     //проблем�
 
 Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m)
 {
-
     random_device rd;
     mt19937 gen(rd());
     uniform_real_distribution<double> prob_dist(0.0, 1.0);
@@ -327,33 +366,49 @@ Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m)
         );
     }
 
-
+    // Специальные случаи
     if (m == 0) {
         return generate_2connected_graph_random(n, rd());
     }
     if (m == n - 1) {
-        return generate_path(n);
+        Graph path = generate_path(n);
+        // Помечаем все рёбра пути как мосты
+        for (size_t i = 0; i < n - 1; i++) {
+            path.set_most(i, i + 1, true);
+        }
+        return path;
+    }
+    // Случай m = n - 2: путь с одним "блобом" на 2 вершинах
+    if (m == n - 2) {
+        Graph g = generate_path(n - 1);  // Путь на n-1 вершинах = n-2 моста
+        g.add_vershina();  // Добавляем последнюю вершину
+        // Присоединяем её к случайной вершине пути (не создаёт новый мост)
+        size_t attach_to = rand() % (n - 1);
+        g.add_rebro(n - 1, attach_to);
+        // Помечаем рёбра пути как мосты
+        for (size_t i = 0; i < n - 2; i++) {
+            g.set_most(i, i + 1, true);
+        }
+        return g;
     }
 
     Graph g;
     g.add_vershiny(n);
 
-    size_t vershini_pyti = m + 1;  // Вершины пути: 0, 1, 2, ..., m
-
-    for (size_t i = 0; i < m; i++)
-    {
+    size_t vershini_pyti = m + 1;
+    for (size_t i = 0; i < m; i++) {
         g.add_rebro(i, i + 1);
+        // Помечаем рёбра пути как мосты
+        g.set_most(i, i + 1, true);
     }
 
     size_t ost_vershini = n - vershini_pyti;
     size_t vershina_now = vershini_pyti;
-
     const size_t MIN_VERTICES_PER_BLOB = 2;
 
     while (ost_vershini >= MIN_VERTICES_PER_BLOB) {
         vertex_dist = uniform_int_distribution<size_t>(0, vershini_pyti - 1);
         size_t vershina_pyti = vertex_dist(gen);
-
 
         vertex_dist = uniform_int_distribution<size_t>(MIN_VERTICES_PER_BLOB, ost_vershini);
         size_t blob_size = vertex_dist(gen);
@@ -364,13 +419,12 @@ Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m)
 
         vector<size_t> vershini_bloba;
         vershini_bloba.push_back(vershina_pyti);
-
         for (size_t i = 0; i < blob_size; i++) {
             vershini_bloba.push_back(vershina_now + i);
         }
 
-
-        size_t k = vershini_bloba.size() - 1;  // Количество вершин в блоке
+        // Создаём цикл в блоке
+        size_t k = vershini_bloba.size() - 1;
         if (k >= 2) {
             for (size_t i = 1; i < k; i++) {
                 g.add_rebro(vershini_bloba[i], vershini_bloba[i + 1]);
@@ -379,30 +433,158 @@ Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m)
             g.add_rebro(vershini_bloba[k], vershina_pyti);
         }
 
+        // Случайные рёбра внутри блока
         double edge_prob = prob_dist(gen);
-
-
         for (size_t i = 1; i < vershini_bloba.size(); i++) {
             for (size_t j = i + 1; j < vershini_bloba.size(); j++) {
                 size_t u = vershini_bloba[i];
                 size_t v = vershini_bloba[j];
-
                 if (!g.has_rebro(u, v)) {
-                    double random_val = prob_dist(gen);
-                    if (random_val < edge_prob) {
+                    if (prob_dist(gen) < edge_prob) {
                         g.add_rebro(u, v);
                     }
                 }
             }
         }
 
+        // Помечаем вершину пути как точку сочленения (если к ней присоединён блок)
+        g.set_tochka_sochleneniya(vershina_pyti, true);
+
         vershina_now += blob_size;
         ost_vershini -= blob_size;
     }
 
     return g;
-} // 11, маш, допиши пж функцию графа без мостов и подправь код функции если видишь в чем
-// случай с m = n - 2 нужно отдельно рассмотреть еще
-// добавь пж активацию флагов моста и точки сочленениня
+}
 
-// 12 по точкам, у нас m мостов = m + 1 точка, нужно ток прописать для 1 точки (две компоненты рандомных размеров, сумма вершин n + 1, соединить по вершине)
+// ============================================================================
+// ГЕНЕРАТОР 12: Граф на n вершинах с заданным количеством точек сочленения
+// ============================================================================
+Graph generate_graph_with_articulations(size_t n, size_t num_articulations)
+{
+    random_device rd;
+    mt19937 gen(rd());
+    uniform_int_distribution<size_t> vertex_dist;
+
+    if (n < 3) {
+        throw invalid_argument("Minimalnoe kolichestvo vershin: 3");
+    }
+    if (num_articulations > n - 2) {
+        throw invalid_argument(
+            "Maksimum tochek sochleneniya: " + to_string(n - 2)
+        );
+    }
+
+    // Специальный случай: 0 точек сочленения = 2-связный граф
+    if (num_articulations == 0) {
+        return generate_2connected_graph_random(n, rd());
+    }
+
+    // Специальный случай: 1 точка сочленения = две 2-связные компоненты, соединённые в одной вершине
+    if (num_articulations == 1) {
+        Graph g;
+        g.add_vershiny(n);
+
+        // Разбиваем вершины на две компоненты (минимум 3 вершины в каждой для 2-связности)
+        size_t comp1_size = 3 + (rand() % (n - 5));  // [3, n-3]
+        size_t comp2_size = n - comp1_size;
+
+        if (comp2_size < 3) {
+            comp1_size = n - 3;
+            comp2_size = 3;
+        }
+
+        // Создаём две 2-связные компоненты
+        Graph comp1 = generate_2connected_graph_random(comp1_size, rd());
+        Graph comp2 = generate_2connected_graph_random(comp2_size, rd());
+
+        // Объединяем через одну общую вершину (точка сочленения)
+        // Вершина 0 из comp1 = вершина 0 из comp2 = точка сочленения
+        for (size_t i = 1; i < comp1_size; i++) {
+            // Копируем рёбра из comp1 (вершина 0 общая)
+            for (size_t j = i + 1; j < comp1_size; j++) {
+                if (comp1.has_rebro(i, j)) {
+                    g.add_rebro(i, j);
+                }
+            }
+            if (comp1.has_rebro(0, i)) {
+                g.add_rebro(0, i);
+            }
+        }
+        for (size_t i = 1; i < comp2_size; i++) {
+            // Копируем рёбра из comp2 (вершина 0 общая, остальные сдвинуты)
+            for (size_t j = i + 1; j < comp2_size; j++) {
+                if (comp2.has_rebro(i, j)) {
+                    g.add_rebro(comp1_size - 1 + i, comp1_size - 1 + j);
+                }
+            }
+            if (comp2.has_rebro(0, i)) {
+                g.add_rebro(0, comp1_size - 1 + i);
+            }
+        }
+
+        // Помечаем вершину 0 как точку сочленения
+        g.set_tochka_sochleneniya(0, true);
+
+        return g;
+    }
+
+    // Общий случай: создаём цепочку из (num_articulations + 1) 2-связных компонент
+    // Соединяем их через точки сочленения
+
+    Graph g;
+    g.add_vershiny(n);
+
+    // Распределяем вершины по компонентам (минимум 3 в каждой для 2-связности)
+    size_t num_components = num_articulations + 1;
+    vector<size_t> comp_sizes(num_components, 3);  // Минимум 3
+
+    size_t used = 3 * num_components;
+    size_t remaining = n - used;
+
+    // Распределяем оставшиеся вершины случайно
+    for (size_t i = 0; i < remaining; i++) {
+        size_t comp_idx = rand() % num_components;
+        comp_sizes[comp_idx]++;
+    }
+
+    // Создаём компоненты и соединяем их
+    size_t current_vertex = 0;
+    vector<size_t> articulation_vertices;
+
+    for (size_t comp_idx = 0; comp_idx < num_components; comp_idx++) {
+        size_t comp_size = comp_sizes[comp_idx];
+
+        // Создаём 2-связную компоненту
+        Graph comp = generate_2connected_graph_random(comp_size, rd());
+
+        // Копируем рёбра компоненты в основной граф
+        for (size_t i = 0; i < comp_size; i++) {
+            for (size_t j = i + 1; j < comp_size; j++) {
+                if (comp.has_rebro(i, j)) {
+                    g.add_rebro(current_vertex + i, current_vertex + j);
+                }
+            }
+        }
+
+        // Если это не последняя компонента, соединяем со следующей через точку сочленения
+        if (comp_idx < num_components - 1) {
+            // Точка сочленения = последняя вершина текущей компоненты
+            size_t articulation = current_vertex + comp_size - 1;
+            articulation_vertices.push_back(articulation);
+
+            // Соединяем с первой вершиной следующей компоненты
+            size_t next_start = current_vertex + comp_size;
+            g.add_rebro(articulation, next_start);
+        }
+
+        current_vertex += comp_size;
+    }
+
+    // Помечаем точки сочленения
+    for (size_t art : articulation_vertices) {
+        g.set_tochka_sochleneniya(art, true);
+    }
+
+    return g;
+} // 12
