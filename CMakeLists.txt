@@ -13,6 +13,7 @@ add_library(graph_lib STATIC
         parser.cpp
         serializer.cpp
         graphmetrics.cpp
+        tests_main.cpp
 )
 
 # Говорим компилятору, что заголовочные файлы (.h) лежат в текущей папке

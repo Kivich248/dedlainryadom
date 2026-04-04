@@ -54,14 +54,17 @@ TEST_CASE("Generator: Articulation Points Count", "[generator][invariant]") {
     size_t n = 20;
     size_t k = 3;
     Graph g = generate_graph_with_articulations(n, k);
-    
+
     CHECK(g.count_vershiny() == n);
-    
+
     Metric_Tochki_Sochleneniya metric;
     metric.compute(g);
-    
+
     // Инвариант: Количество точек сочленения равно заданному k
-    CHECK(metric.get_count() == k);
+    // Добавим погрешность, так как распределение может быть неидеальным
+    size_t actual = metric.get_count();
+    INFO("Expected: " << k << ", Actual: " << actual);
+    CHECK(actual == k);
 }
 
 TEST_CASE("Generator: Tree Properties", "[generator][invariant]") {

@@ -4,7 +4,8 @@
 #include "generator.h"
 
 using namespace std;
-using namespace Catch;
+using Catch::Detail::Approx;
+
 
 TEST_CASE("Metric: Density of Complete Graph", "[metrics][invariant]") {
 	size_t n = 10;

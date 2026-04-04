@@ -280,19 +280,11 @@ void GraphVizSerializer::serialize(const Graph& graph, ostream& output, const Vi
 // ============================================================================
 
 void EdgesSerializer::serialize(const Graph& graph, ostream& output, const VizOptions&) {
-    // Формат .edges:
-    // # Vertices: N
-    // # Edges: M
-    // u v
-    // ...
-    
     output << "# Vertices: " << graph.count_vershiny() << "\n";
     output << "# Edges: " << graph.count_rebra() << "\n";
-    
+
     for (const auto& e : graph.get_vse_rebra()) {
-        // В формате .edges обычно 0-based или 1-based? 
-        // Сайт pro g r@m4you использует 0-based индексы в примере, но лучше уточнить.
-        // Будем выводить 0-based, как хранится внутри.
-        output << e.from << " " << e.to << "\n";
+        // Выводим в 1-based формате (как ожидает EdgeListParser)
+        output << (e.from + 1) << " " << (e.to + 1) << "\n";
     }
 }

@@ -49,42 +49,41 @@ void EdgeListParser::parse(istream& input, Graph& graph)
     vector<pair<size_t, size_t>> rebra;
     size_t u_in, v_in;
     size_t max_vershina = 0;
+    string line;
 
-    // Читаем пары чисел
-    while (input >> u_in >> v_in)
-    {
-        // Конвертация 1-based (файл) -> 0-based (граф)
-        // Если в файле могут быть 0, то логику нужно усложнить.
-        // Для лабы обычно предполагаем 1-based ввод для всех форматов кроме SNAP (там 0-based).
-        // Но EdgeList часто 0-based. Давай сделаем так: если встречаем 0, считаем 0-based.
-        // НО в твоем коде было +1, значит ты ожидал 0-based вход?
-        // Давай сделаем строго как в DIMACS: вход 1-based -> вычитаем 1.
+    // Читаем построчно, чтобы пропускать комментарии
+    while (getline(input, line)) {
+        // Пропускаем пустые строки
+        if (line.empty()) continue;
 
-        if (u_in == 0 || v_in == 0) {
-             // Если вдруг 0, то оставляем как есть (0-based)
-             // Но лучше кидать ошибку или предупреждение.
-             // Для унификации: пусть вход всегда 1-based для EdgeList в этой лабе.
-             throw invalid_argument("EdgeList parser ozhidaet nomera vershin s 1. Nayden 0.");
+        // Пропускаем комментарии (начинаются с #)
+        if (line[0] == '#') continue;
+
+        // Парсим строку
+        istringstream iss(line);
+        if (iss >> u_in >> v_in) {
+            // Конвертация 1-based -> 0-based
+            if (u_in == 0 || v_in == 0) {
+                throw invalid_argument("EdgeList parser ozhidaet nomera vershin s 1. Nayden 0.");
+            }
+
+            size_t u = u_in - 1;
+            size_t v = v_in - 1;
+
+            rebra.push_back({u, v});
+            if (u > max_vershina) max_vershina = u;
+            if (v > max_vershina) max_vershina = v;
         }
-
-        size_t u = u_in - 1;
-        size_t v = v_in - 1;
-
-        rebra.push_back({u, v});
-        if (u > max_vershina) max_vershina = u;
-        if (v > max_vershina) max_vershina = v;
     }
 
     // Создаем вершины
-    for (size_t i = 0; i <= max_vershina; i++)
-    {
-        graph.add_vershina(); // Исправлено имя метода
+    for (size_t i = 0; i <= max_vershina; i++) {
+        graph.add_vershina();
     }
 
     // Добавляем ребра
-    for (const auto& edge : rebra)
-    {
-        graph.add_rebro(edge.first, edge.second); // Исправлено имя метода
+    for (const auto& edge : rebra) {
+        graph.add_rebro(edge.first, edge.second);
     }
 }
 

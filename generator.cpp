@@ -462,129 +462,80 @@ Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m)
 // ============================================================================
 Graph generate_graph_with_articulations(size_t n, size_t num_articulations)
 {
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_int_distribution<size_t> vertex_dist;
-
     if (n < 3) {
-        throw invalid_argument("Minimalnoe kolichestvo vershin: 3");
+        throw std::invalid_argument("Minimalnoe kolichestvo vershin: 3");
     }
     if (num_articulations > n - 2) {
-        throw invalid_argument(
-            "Maksimum tochek sochleneniya: " + to_string(n - 2)
+        throw std::invalid_argument(
+            "Maksimum tochek sochleneniya: " + std::to_string(n - 2)
         );
     }
 
-    // Специальный случай: 0 точек сочленения = 2-связный граф
-    if (num_articulations == 0) {
-        return generate_2connected_graph_random(n, rd());
-    }
+    // Создаём граф
+    Graph result;
+    result.add_vershiny(n);
 
-    // Специальный случай: 1 точка сочленения = две 2-связные компоненты, соединённые в одной вершине
-    if (num_articulations == 1) {
-        Graph g;
-        g.add_vershiny(n);
-
-        // Разбиваем вершины на две компоненты (минимум 3 вершины в каждой для 2-связности)
-        size_t comp1_size = 3 + (rand() % (n - 5));  // [3, n-3]
-        size_t comp2_size = n - comp1_size;
-
-        if (comp2_size < 3) {
-            comp1_size = n - 3;
-            comp2_size = 3;
-        }
-
-        // Создаём две 2-связные компоненты
-        Graph comp1 = generate_2connected_graph_random(comp1_size, rd());
-        Graph comp2 = generate_2connected_graph_random(comp2_size, rd());
-
-        // Объединяем через одну общую вершину (точка сочленения)
-        // Вершина 0 из comp1 = вершина 0 из comp2 = точка сочленения
-        for (size_t i = 1; i < comp1_size; i++) {
-            // Копируем рёбра из comp1 (вершина 0 общая)
-            for (size_t j = i + 1; j < comp1_size; j++) {
-                if (comp1.has_rebro(i, j)) {
-                    g.add_rebro(i, j);
-                }
-            }
-            if (comp1.has_rebro(0, i)) {
-                g.add_rebro(0, i);
-            }
-        }
-        for (size_t i = 1; i < comp2_size; i++) {
-            // Копируем рёбра из comp2 (вершина 0 общая, остальные сдвинуты)
-            for (size_t j = i + 1; j < comp2_size; j++) {
-                if (comp2.has_rebro(i, j)) {
-                    g.add_rebro(comp1_size - 1 + i, comp1_size - 1 + j);
-                }
-            }
-            if (comp2.has_rebro(0, i)) {
-                g.add_rebro(0, comp1_size - 1 + i);
-            }
-        }
-
-        // Помечаем вершину 0 как точку сочленения
-        g.set_tochka_sochleneniya(0, true);
-
-        return g;
-    }
-
-    // Общий случай: создаём цепочку из (num_articulations + 1) 2-связных компонент
-    // Соединяем их через точки сочленения
-
-    Graph g;
-    g.add_vershiny(n);
-
-    // Распределяем вершины по компонентам (минимум 3 в каждой для 2-связности)
+    // Количество двусвязных компонент
     size_t num_components = num_articulations + 1;
-    vector<size_t> comp_sizes(num_components, 3);  // Минимум 3
 
-    size_t used = 3 * num_components;
-    size_t remaining = n - used;
+    // Минимальный размер компоненты для двусвязности = 3
+    if (n < 3 * num_components) {
+        // Не хватает вершин — уменьшаем количество компонент
+        num_components = n / 3;
+        if (num_components < 1) num_components = 1;
+        num_articulations = num_components - 1;
+    }
 
-    // Распределяем оставшиеся вершины случайно
+    // Размеры компонент (минимально по 3)
+    std::vector<size_t> comp_sizes(num_components, 3);
+    size_t remaining = n - 3 * num_components;
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<size_t> dist(0, num_components - 1);
+
     for (size_t i = 0; i < remaining; i++) {
-        size_t comp_idx = rand() % num_components;
-        comp_sizes[comp_idx]++;
+        comp_sizes[dist(gen)]++;
     }
 
     // Создаём компоненты и соединяем их
-    size_t current_vertex = 0;
-    vector<size_t> articulation_vertices;
+    size_t offset = 0;
 
-    for (size_t comp_idx = 0; comp_idx < num_components; comp_idx++) {
-        size_t comp_size = comp_sizes[comp_idx];
+    for (size_t comp = 0; comp < num_components; comp++) {
+        size_t size = comp_sizes[comp];
 
-        // Создаём 2-связную компоненту
-        Graph comp = generate_2connected_graph_random(comp_size, rd());
-
-        // Копируем рёбра компоненты в основной граф
-        for (size_t i = 0; i < comp_size; i++) {
-            for (size_t j = i + 1; j < comp_size; j++) {
-                if (comp.has_rebro(i, j)) {
-                    g.add_rebro(current_vertex + i, current_vertex + j);
-                }
+        if (size == 1) {
+            // Одна вершина — изолированная
+            offset++;
+            continue;
+        }
+        else if (size == 2) {
+            // Две вершины — просто ребро
+            result.add_rebro(offset, offset + 1);
+            offset += 2;
+        }
+        else {
+            // Три и более — создаём цикл (двусвязный граф)
+            for (size_t i = 0; i < size - 1; i++) {
+                result.add_rebro(offset + i, offset + i + 1);
             }
+            result.add_rebro(offset + size - 1, offset);
+            offset += size;
         }
 
-        // Если это не последняя компонента, соединяем со следующей через точку сочленения
-        if (comp_idx < num_components - 1) {
-            // Точка сочленения = последняя вершина текущей компоненты
-            size_t articulation = current_vertex + comp_size - 1;
-            articulation_vertices.push_back(articulation);
+        // Соединяем с предыдущей компонентой через точку сочленения
+        if (comp > 0) {
+            // Точка сочленения — последняя вершина предыдущей компоненты
+            size_t articulation_point = offset - comp_sizes[comp] - 1;
 
-            // Соединяем с первой вершиной следующей компоненты
-            size_t next_start = current_vertex + comp_size;
-            g.add_rebro(articulation, next_start);
+            // Соединяем с первой вершиной текущей компоненты
+            result.add_rebro(articulation_point, offset - comp_sizes[comp]);
+
+            // Можно пометить точку сочленения (но не обязательно)
+            result.set_tochka_sochleneniya(articulation_point, true);
         }
-
-        current_vertex += comp_size;
     }
 
-    // Помечаем точки сочленения
-    for (size_t art : articulation_vertices) {
-        g.set_tochka_sochleneniya(art, true);
-    }
-
-    return g;
-} // 12
+    return result;
+}
+// 12
