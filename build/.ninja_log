@@ -1,0 +1,26 @@
+# ninja log v7
+25	5485	7970247506817821	CMakeFiles/graph_lib.dir/parser.cpp.obj	a42cb7514857f75
+12	4265	7970260836646395	CMakeFiles/lab2.dir/main.cpp.obj	1d85cc5d89af2271
+41	6837	7970247507057190	CMakeFiles/graph_lib.dir/graphmetrics.cpp.obj	ee25cd9e72f72254
+8	4242	7970260836606468	CMakeFiles/graph_lib.dir/generator.cpp.obj	da22bdd560c7fea7
+31	7618	7970247506927522	CMakeFiles/graph_lib.dir/serializer.cpp.obj	f330918a65156ebd
+7	8848	7970247506628321	CMakeFiles/graph_lib.dir/graph.cpp.obj	408af2835af360c7
+4243	6420	7970260878959267	libgraph_lib.a	16d871e3dff5deff
+16	6339	7970260836686294	CMakeFiles/tests.dir/tests_graph_core.cpp.obj	5e4ab6f82c3af38
+21	6417	7970260836786029	CMakeFiles/tests.dir/tests_generators.cpp.obj	cdb6c6127fd72dd7
+38	6318	7970260836935623	CMakeFiles/tests.dir/tests_metrics.cpp.obj	5c8678a1bef4b87d
+6422	6932	7970260900748581	lab2.exe	86902bef3c594556
+61	6783	7970260837194928	CMakeFiles/tests.dir/tests_serializers.cpp.obj	58b0d98119c5c7f6
+4275	10743	7970260879274394	CMakeFiles/tests.dir/tests_parsers.cpp.obj	2497186ff48cd3c3
+5627	30325	7970247565115345	CMakeFiles/tests.dir/tests_main.cpp.obj	807d8be11c268fb8
+10743	11448	7970260943957075	tests.exe	2764858775648407
+11	4569	7970269497103155	CMakeFiles/lab2.dir/main.cpp.obj	1d85cc5d89af2271
+7	4661	7970269497053271	CMakeFiles/graph_lib.dir/generator.cpp.obj	da22bdd560c7fea7
+16	6520	7970269497162986	CMakeFiles/tests.dir/tests_graph_core.cpp.obj	5e4ab6f82c3af38
+4682	6556	7970269543873656	libgraph_lib.a	16d871e3dff5deff
+51	6755	7970269497502067	CMakeFiles/tests.dir/tests_metrics.cpp.obj	5c8678a1bef4b87d
+23	6951	7970269497222816	CMakeFiles/tests.dir/tests_generators.cpp.obj	cdb6c6127fd72dd7
+6573	7451	7970269562747474	lab2.exe	86902bef3c594556
+76	7616	7970269497750121	CMakeFiles/tests.dir/tests_serializers.cpp.obj	58b0d98119c5c7f6
+4598	9520	7970269542966331	CMakeFiles/tests.dir/tests_parsers.cpp.obj	2497186ff48cd3c3
+9520	10239	7970269592187855	tests.exe	2764858775648407

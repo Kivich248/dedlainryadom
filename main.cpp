@@ -12,7 +12,7 @@
 #include "serializer.h"
 #include "graphmetrics.h"
 
-using namespace std;
+using namespace std; // да мы беспомощные и не хотим писать std::
 
 void print_help() {
     cout << "Usage: ./lab2 [options]\n";
@@ -27,7 +27,7 @@ void print_help() {
     cout << "  --viz-spanning-tree            Show random spanning tree\n";
     cout << "  --viz-cycle                    Show random cycle\n";
     cout << "  -h, --help                     Show help\n";
-}
+} //для беспомощных
 
 int main(int argc, char* argv[]) {
     Graph g;
@@ -40,19 +40,23 @@ int main(int argc, char* argv[]) {
     string gen_type;
     vector<string> gen_args;
 
-    // Парсинг аргументов
-    for (int i = 1; i < argc; i++) {
+    // парсинг уры
+    for (int i = 1; i < argc; i++)
+    {
         string arg = argv[i];
 
-        if (arg == "-h" || arg == "--help") {
+        if (arg == "-h" || arg == "--help")
+        {
             print_help();
             return 0;
         }
-        else if (arg == "-g" || arg == "--generate") {
+        else if (arg == "-g" || arg == "--generate")
+        {
             if (i + 1 >= argc) { cerr << "Error: -g needs type\n"; return 1; }
             gen_type = argv[++i];
-            // Собираем аргументы генератора до следующего флага
-            while (i + 1 < argc && argv[i+1][0] != '-') {
+            // аргументы генератора до следующего флага
+            while (i + 1 < argc && argv[i+1][0] != '-')
+            {
                 gen_args.push_back(argv[++i]);
             }
         }
@@ -91,7 +95,7 @@ int main(int argc, char* argv[]) {
     }
 
     try {
-        // 1. Генерация или Парсинг
+        // выбор функции
         if (!gen_type.empty()) {
             if (gen_type == "full") g = generate_full(stoul(gen_args[0]));
             else if (gen_type == "twodol") g = generate_full_twodol(stoul(gen_args[0]), stoul(gen_args[1]));
@@ -104,7 +108,7 @@ int main(int argc, char* argv[]) {
             else if (gen_type == "cubic") g = generate_random_cubic(stoul(gen_args[0]));
             else if (gen_type == "components") g = generate_graph_with_components(stoul(gen_args[0]), stoul(gen_args[1]));
             else if (gen_type == "bridges") g = generate_graph_with_bridges_path_blobs_random(stoul(gen_args[0]), stoul(gen_args[1]));
-            else if (gen_type == "articulations") g = generate_graph_with_articulations(stoul(gen_args[0]), stoul(gen_args[1]));
+            else if (gen_type == "articulations") g = generate_graph_with_articulations_path_blobs_random(stoul(gen_args[0]), stoul(gen_args[1]));
             else { cerr << "Unknown generator: " << gen_type << "\n"; return 1; }
             graph_loaded = true;
             cout << "Generated: " << g.count_vershiny() << " V, " << g.count_rebra() << " E\n";
@@ -125,7 +129,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        // 2. Метрики
+        // метрики мои любимые(нет)
         if (!metrics_list.empty()) {
             cout << "\n--- Metrics ---\n";
             for (const string& name : metrics_list) {
@@ -140,7 +144,7 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        // 3. Сохранение
+        // сохраняем граф(наконец-то)
         if (!save_file.empty()) {
             ofstream file(save_file);
             if (!file.is_open()) throw runtime_error("Cannot create " + save_file);

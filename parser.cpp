@@ -6,9 +6,7 @@
 
 using namespace std;
 
-// ============================================================================
-// БАЗОВЫЙ КЛАСС
-// ============================================================================
+//класс парсера все такое
 
 GraphParser::~GraphParser() {}
 
@@ -37,12 +35,6 @@ GraphParser* GraphParser::sozdat_parser(const string& format)
     return nullptr;
 }
 
-// ============================================================================
-// EDGE LIST PARSER
-// Предполагаем формат: u v (0-based или 1-based? Сделаем универсально: если встречаем 0, то 0-based, иначе 1-based)
-// Но для простоты лабы часто делают строго 1-based вход -> 0-based внутри.
-// Исправление: считаем вход 1-based (как в DIMACS), вычитаем 1.
-// ============================================================================
 
 void EdgeListParser::parse(istream& input, Graph& graph)
 {
@@ -51,11 +43,11 @@ void EdgeListParser::parse(istream& input, Graph& graph)
     size_t max_vershina = 0;
     string line;
 
-    // Читаем построчно, чтобы пропускать комментарии
-    while (getline(input, line)) {
+    // читаем построчно
+    while (getline(input, line))
+    {
         // Пропускаем пустые строки
         if (line.empty()) continue;
-
         // Пропускаем комментарии (начинаются с #)
         if (line[0] == '#') continue;
 
