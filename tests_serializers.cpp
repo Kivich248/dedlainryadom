@@ -1,9 +1,12 @@
-#include <catch2/catch.hpp>
-#include "serializer.h"
-#include "graph.h"
 #include <sstream>
 #include <set>
 #include <regex>
+
+#include "catch_amalgamated.hpp"
+#include "serializer.h"
+#include "graph.h"
+#include "parser.h"
+#include "generator.h"
 
 using namespace std;
 

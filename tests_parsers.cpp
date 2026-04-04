@@ -1,7 +1,11 @@
-#include <catch2/catch.hpp>
+#include <sstream>
+
+#include "catch_amalgamated.hpp"
 #include "parser.h"
 #include "graph.h"
-#include <sstream>
+#include "generator.h"
+#include "graphmetrics.h"
+
 
 using namespace std;
 

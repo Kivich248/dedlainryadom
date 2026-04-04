@@ -1,0 +1,5 @@
+D:/kys/dedlainryadom/build/CMakeFiles/graph_lib.dir
+D:/kys/dedlainryadom/build/CMakeFiles/lab2.dir
+D:/kys/dedlainryadom/build/CMakeFiles/tests.dir
+D:/kys/dedlainryadom/build/CMakeFiles/edit_cache.dir
+D:/kys/dedlainryadom/build/CMakeFiles/rebuild_cache.dir

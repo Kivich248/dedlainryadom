@@ -1,0 +1,2 @@
+C:\mingw64\bin\ar.exe qc libgraph_lib.a CMakeFiles/graph_lib.dir/graph.cpp.obj CMakeFiles/graph_lib.dir/generator.cpp.obj CMakeFiles/graph_lib.dir/parser.cpp.obj CMakeFiles/graph_lib.dir/serializer.cpp.obj CMakeFiles/graph_lib.dir/graphmetrics.cpp.obj
+C:\mingw64\bin\ranlib.exe libgraph_lib.a

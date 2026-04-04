@@ -1,6 +1,8 @@
-#include <catch2/catch.hpp>
-#include "graph.h"
 #include <numeric>
+
+#include "catch_amalgamated.hpp"
+#include "graph.h"
+#include "generator.h"
 
 using namespace std;
 

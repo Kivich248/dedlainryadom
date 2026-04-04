@@ -1,8 +1,10 @@
-#include <catch2/catch.hpp>
+#include "catch_amalgamated.hpp"
 #include "graph.h"
 #include "graphmetrics.h"
+#include "generator.h"
 
 using namespace std;
+using namespace Catch;
 
 TEST_CASE("Metric: Density of Complete Graph", "[metrics][invariant]") {
 	size_t n = 10;
