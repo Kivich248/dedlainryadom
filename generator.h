@@ -18,11 +18,8 @@ Graph generate_random_cubic(size_t n);                  // 9. Кубически
 Graph generate_graph_with_components(size_t n, size_t k);           // 10. Компоненты связности
 Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m);  // 11. Мосты
 Graph generate_graph_with_articulations_path_blobs_random(size_t n, size_t num_articulations);  // 12. Точки сочленения
-Graph generate_graph_with_2bridges(size_t n, size_t k);
-// Graph generate_graph_with_2bridges(size_t n, size_t num_2bridges);  // 13. 2-мосты (отложено)
-// Graph generate_graph_Halina(size_t variant = 1);  // 14. Граф Халина (отложено)
+Graph generate_graph_with_2bridges(size_t n, size_t k); //13. 2-мосты
 
-// ============================================================================
-// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (ОПЦИОНАЛЬНО, ЕСЛИ НУЖНЫ ВНЕ generator.cpp)
-// ============================================================================
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ )
+
 Graph generate_2connected_graph_random(size_t n, unsigned int seed = 42);  // 2-связный граф

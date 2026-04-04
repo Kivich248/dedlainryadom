@@ -12,11 +12,11 @@ using namespace std;
 TEST_CASE("Parser: DIMACS Round-Trip", "[parser][invariant]") {
 	Graph original = generate_full(5);
 
-	// Сериализуем вручную в DIMACS формат (упрощенно)
+	// Сериализуем вручную в DIMACS формат
 	ostringstream oss;
 	oss << "p edge " << original.count_vershiny() << " " << original.count_rebra() << "\n";
 	for (const auto& e : original.get_vse_rebra()) {
-		// DIMACS 1-based
+
 		oss << "e " << (e.from + 1) << " " << (e.to + 1) << "\n";
 	}
 

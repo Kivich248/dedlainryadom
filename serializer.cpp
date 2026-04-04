@@ -23,9 +23,9 @@ GraphSerializer* GraphSerializer::sozdat_serializer(const string& format) {
     return nullptr;
 }
 
-// ============================================================================
+
 // GRAPHVIZ SERIALIZER
-// ============================================================================
+
 
 string GraphVizSerializer::escape_string(const string& s) {
     string res;
@@ -41,17 +41,9 @@ vector<vector<size_t>> GraphVizSerializer::get_components(const Graph& g) {
     return g.get_components(); // Используем метод из Graph
 }
 
-// Упрощенная вершинная двусвязность: группируем вершины, не являющиеся точками сочленения, вокруг них
-// Для полноценной реализации нужен алгоритм поиска компонент двусвязности (через стек ребер DFS)
-// Здесь сделаем просто: каждая точка сочленения - отдельный "узел", остальные группируются по соседству
-// Но для лабы часто достаточно просто покрасить точки сочленения. 
-// Реализуем кластеризацию: если вершина не точка сочленения, она в кластере с соседями.
-// Для простоты: выведем просто список компонент связности, а внутри подсветим точки сочленения.
+
 vector<vector<size_t>> GraphVizSerializer::get_biconnected_components(const Graph& g) {
-    // Заглушка: возвращаем пустой вектор, если сложная логика не нужна, 
-    // или реализуем полный алгоритм Тарьяна для реберной двусвязности.
-    // Для оценки 8 важно выделить их визуально. 
-    // Сделаем так: вернем компоненты связности, а внутри раскрасим.
+
     return {}; 
 }
 
@@ -171,7 +163,7 @@ void GraphVizSerializer::serialize(const Graph& graph, ostream& output, const Vi
     output << "  node [shape=circle, style=filled, fillcolor=white];\n";
     output << "  edge [color=black];\n";
 
-    // 1. Кластеры компонент связности
+    //Кластеры компонент связности
     if (options.show_components) {
         auto components = get_components(graph);
         for (size_t i = 0; i < components.size(); i++) {
@@ -186,7 +178,7 @@ void GraphVizSerializer::serialize(const Graph& graph, ostream& output, const Vi
         }
     }
 
-    // 2. Настройка вершин (цвета для точек сочленения)
+    //Настройка вершин (цвета для точек сочленения)
     for (size_t i = 0; i < graph.count_vershiny(); i++) {
         string attrs = "";
         if (options.show_articulations && graph.is_tochka_sochleneniya(i)) {
@@ -240,7 +232,7 @@ void GraphVizSerializer::serialize(const Graph& graph, ostream& output, const Vi
         }
     }
 
-    // 3. Вывод ребер
+    //Вывод ребер
     for (const auto& e : graph.get_vse_rebra()) {
         size_t u = e.from;
         size_t v = e.to;
@@ -275,9 +267,9 @@ void GraphVizSerializer::serialize(const Graph& graph, ostream& output, const Vi
     output << "}\n";
 }
 
-// ============================================================================
+
 // EDGES SERIALIZER
-// ============================================================================
+
 
 void EdgesSerializer::serialize(const Graph& graph, ostream& output, const VizOptions&) {
     output << "# Vertices: " << graph.count_vershiny() << "\n";

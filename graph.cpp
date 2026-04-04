@@ -5,17 +5,17 @@
 
 using namespace std;
 
-// ============================================================================
-// РЕАЛИЗАЦИЯ СТРУКТУРЫ VERSHINA
-// ============================================================================
+
+// РЕАЛИЗАЦИЯ СТРУКТУРЫ VERSHINA (к сожалению мой напарник плохо знает английский)
+
 
 Vershina::Vershina() : color("black"), label(""), isArticulation(false), component(-1), biconnectedComponent(-1) {}
 
 Vershina::Vershina(const string& col) : color(col), label(""), isArticulation(false), component(-1), biconnectedComponent(-1) {}
 
-// ============================================================================
-// РЕАЛИЗАЦИЯ СТРУКТУРЫ REBRO
-// ============================================================================
+
+// РЕАЛИЗАЦИЯ СТРУКТУРЫ REBRO (очень плохо)
+
 
 Rebro::Rebro(size_t u, size_t v) : from(u), to(v), color("black"), isBridge(false), edgeBiconnectedComponent(-1) {}
 
@@ -31,9 +31,9 @@ bool Rebro::incidentTo(size_t v) const
     return v == from || v == to;
 }
 
-// ============================================================================
+
 // ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
-// ============================================================================
+
 
 void Graph::expand_rebro_index()
 {
@@ -53,9 +53,9 @@ void Graph::expand_rebro_index()
     rebro_index.push_back(new_row);
 }
 
-// ============================================================================
+
 // КОНСТРУКТОРЫ
-// ============================================================================
+
 
 Graph::Graph() = default;
 
@@ -96,9 +96,9 @@ Graph& Graph::operator=(const Graph& other)
     return *this;
 }
 
-// ============================================================================
+
 // ОПЕРАЦИИ С ВЕРШИНАМИ
-// ============================================================================
+
 
 void Graph::add_vershina()
 {
@@ -142,7 +142,7 @@ void Graph::remove_vershina(size_t m)
         throw out_of_range("Vershina s indexom " + to_string(m) + " ne suschestvuet");
     }
 
-    // 1. Фильтруем рёбра, удаляя инцидентные m
+    // кикаем инцидентные ребра
     vector<Rebro> filtered_rebro;
     for (size_t i = 0; i < rebro.size(); i++)
     {
@@ -154,7 +154,7 @@ void Graph::remove_vershina(size_t m)
     }
     rebro = filtered_rebro;
 
-    // 2. Сдвигаем индексы в оставшихся рёбрах
+    // сдвигаем индексы в оставшихся рёбрах
     for (size_t i = 0; i < rebro.size(); i++)
     {
         Rebro& e = rebro[i];
@@ -164,7 +164,7 @@ void Graph::remove_vershina(size_t m)
 
     size_t newSize = vershini.size() - 1;
 
-    // 3. Перестраиваем inchedent_rebra
+    // перестраиваем inchedent_rebra
     inchedent_rebra.clear();
     for (size_t i = 0; i < newSize; i++)
     {
@@ -178,7 +178,7 @@ void Graph::remove_vershina(size_t m)
         inchedent_rebra[e.to].push_back(i);
     }
 
-    // 4. Перестраиваем rebro_index
+    // перестраиваем rebro_index
     rebro_index.clear();
     for (size_t i = 0; i < newSize; i++)
     {
@@ -193,13 +193,13 @@ void Graph::remove_vershina(size_t m)
         rebro_index[e.to][e.from] = static_cast<int>(i);
     }
 
-    // 5. Удаляем вершину
+    // удаляем вершинку
     vershini.erase(vershini.begin() + static_cast<long>(m));
 }
 
-// ============================================================================
+
 // АТРИБУТЫ ВЕРШИН
-// ============================================================================
+
 
 void Graph::set_color_vershiny(size_t v, const string& color)
 {
@@ -225,7 +225,7 @@ string Graph::get_label_vershiny(size_t v) const
     return vershini[v].label;
 }
 
-// В .cpp БЕЗ дефолтного значения
+
 void Graph::set_tochka_sochleneniya(size_t v, bool value)
 {
     if (v >= vershini.size()) throw out_of_range("Index vershiny out of range");
@@ -250,9 +250,9 @@ int Graph::get_component_vershiny(size_t v) const
     return vershini[v].component;
 }
 
-// ============================================================================
+
 // ОПЕРАЦИИ С РЁБРАМИ
-// ============================================================================
+
 
 void Graph::add_rebro(size_t u, size_t v)
 {
@@ -305,9 +305,9 @@ const vector<Rebro>& Graph::get_vse_rebra() const
     return rebro;
 }
 
-// ============================================================================
+
 // АТРИБУТЫ РЁБЕР
-// ============================================================================
+
 
 void Graph::set_color_rebra(size_t u, size_t v, const string& color)
 {
@@ -378,9 +378,9 @@ vector<vector<size_t>> Graph::get_components() const
     return components;
 }
 
-// ============================================================================
+
 // ОБХОД ОКРЕСТНОСТЕЙ
-// ============================================================================
+
 
 vector<size_t> Graph::get_sosedi(size_t v) const
 {
@@ -411,9 +411,9 @@ size_t Graph::stepen(size_t v) const
 bool Graph::is_list(size_t v) const { return stepen(v) == 1; }
 bool Graph::is_izolirovannaya(size_t v) const { return stepen(v) == 0; }
 
-// ============================================================================
+
 // УПРАВЛЕНИЕ ГРАФОМ
-// ============================================================================
+
 
 void Graph::clear()
 {
@@ -504,9 +504,9 @@ void Graph::random_renumber()
     rebro_index = move(new_rebro_index);
 }
 
-// ============================================================================
+
 // ОТЛАДКА
-// ============================================================================
+
 
 void Graph::print() const
 {

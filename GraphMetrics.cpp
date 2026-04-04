@@ -2,9 +2,9 @@
 
 using namespace std;
 
-// ============================================================================
-// GraphMetric (базовый класс)
-// ============================================================================
+
+// GraphMetric
+
 
 GraphMetric::~GraphMetric() {}
 
@@ -49,9 +49,9 @@ vector<string> GraphMetric::get_available_metrics() {
     return metrics;
 }
 
-// ============================================================================
-// Metric_Plotnost
-// ============================================================================
+
+// Metric_Plotnost (я кстати тоже не знаю как по-английски плотность)
+
 
 Metric_Plotnost::Metric_Plotnost() : value(0.0), computed(false) {}
 
@@ -92,9 +92,9 @@ double Metric_Plotnost::get_value() const {
     return value;
 }
 
-// ============================================================================
-// Metric_Diametr
-// ============================================================================
+
+// Metric_Diametr (бро по-английски диаметр буквально diameter)
+
 
 Metric_Diametr::Metric_Diametr() : value(0), computed(false) {}
 
@@ -180,9 +180,9 @@ size_t Metric_Diametr::get_value() const {
     return value;
 }
 
-// ============================================================================
+
 // Metric_Transitivnost
-// ============================================================================
+
 
 Metric_Transitivnost::Metric_Transitivnost() : value(0.0), computed(false) {}
 
@@ -242,9 +242,9 @@ double Metric_Transitivnost::get_value() const {
     return value;
 }
 
-// ============================================================================
+
 // Metric_Komponenty_Svyaznosti
-// ============================================================================
+
 
 Metric_Komponenty_Svyaznosti::Metric_Komponenty_Svyaznosti()
     : value(0), computed(false) {}
@@ -309,9 +309,9 @@ const vector<int>& Metric_Komponenty_Svyaznosti::get_component_ids() const {
     return component_ids;
 }
 
-// ============================================================================
+
 // Metric_Tochki_Sochleneniya
-// ============================================================================
+
 
 Metric_Tochki_Sochleneniya::Metric_Tochki_Sochleneniya()
     : value(0), computed(false) {}
@@ -411,9 +411,9 @@ const vector<bool>& Metric_Tochki_Sochleneniya::get_articulation_flags() const {
     return is_articulation;
 }
 
-// ============================================================================
+
 // Metric_Mosty
-// ============================================================================
+
 
 Metric_Mosty::Metric_Mosty() : value(0), computed(false) {}
 
@@ -497,9 +497,9 @@ const vector<pair<size_t, size_t>>& Metric_Mosty::get_bridge_list() const {
     return bridge_list;
 }
 
-// ============================================================================
+
 // Metric_Dvudolnost
-// ============================================================================
+
 
 Metric_Dvudolnost::Metric_Dvudolnost() : is_bipartite(true), computed(false) {}
 
@@ -569,9 +569,9 @@ const vector<int>& Metric_Dvudolnost::get_coloring() const {
     return coloring;
 }
 
-// ============================================================================
+
 // Metric_Hromaticheskoe_Chislo
-// ============================================================================
+
 
 Metric_Hromaticheskoe_Chislo::Metric_Hromaticheskoe_Chislo()
     : upper_bound(0), computed(false) {}

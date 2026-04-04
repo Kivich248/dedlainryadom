@@ -43,15 +43,12 @@ TEST_CASE("Serializer: Edges Format Round-Trip", "[serializer][format]") {
     ostringstream oss;
     ser.serialize(original, oss, VizOptions());
     
-    // Парсим обратно (используем EdgeListParser, т.к. формат похож)
-    // Примечание: в реальном коде нужно убедиться, что форматы совместимы по индексации (0-based)
+    // Парсим обратно
     istringstream iss(oss.str());
     Graph restored;
     EdgeListParser parser;
     
-    // EdgeListParser может ожидать заголовки или нет, зависит от реализации.
-    // Если формат .edges имеет комментарии #, парсер должен их игнорировать.
-    // Предположим, что parser справится с комментариями.
+
     try {
         parser.parse(iss, restored);
         

@@ -26,9 +26,9 @@ public:
     static GraphSerializer* sozdat_serializer(const string& format);
 };
 
-// ============================================================================
-// GRAPHVIZ SERIALIZER (.dot)
-// ============================================================================
+
+// GRAPHVIZ SERIALIZER
+
 class GraphVizSerializer : public GraphSerializer {
 public:
     void serialize(const Graph& graph, ostream& output, const VizOptions& options = VizOptions()) override;
@@ -43,12 +43,12 @@ private:
     string escape_string(const string& s);
 };
 
-// ============================================================================
-// EDGES SERIALIZER (.edges)
+
+// EDGES SERIALIZER
 // Формат Pro g r@m4You
-// ============================================================================
+
 class EdgesSerializer : public GraphSerializer {
 public:
     void serialize(const Graph& graph, ostream& output, const VizOptions& options = VizOptions()) override;
-    // Для .edges опции визуализации не нужны, но интерфейс единый
+
 };
