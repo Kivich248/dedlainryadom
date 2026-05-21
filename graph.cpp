@@ -6,16 +6,16 @@
 using namespace std;
 
 
-// РЕАЛИЗАЦИЯ СТРУКТУРЫ VERSHINA (к сожалению мой напарник плохо знает английский)
-
+// РЕАЛИЗАЦИЯ СТРУКТУРЫ VERSHINA (к сожалению мой напарник плохо знает английский) (за то всем все сразу понятно)
+// это конструкторы структуры
 
 Vershina::Vershina() : color("black"), label(""), isArticulation(false), component(-1), biconnectedComponent(-1) {}
 
 Vershina::Vershina(const string& col) : color(col), label(""), isArticulation(false), component(-1), biconnectedComponent(-1) {}
 
 
-// РЕАЛИЗАЦИЯ СТРУКТУРЫ REBRO (очень плохо)
-
+// РЕАЛИЗАЦИЯ СТРУКТУРЫ REBRO (очень плохо) (очень хорошо на самом деле)
+// конструкторы ребер
 
 Rebro::Rebro(size_t u, size_t v) : from(u), to(v), color("black"), isBridge(false), edgeBiconnectedComponent(-1) {}
 
@@ -32,7 +32,7 @@ bool Rebro::incidentTo(size_t v) const
 }
 
 
-// ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ
+// всякие методы
 
 
 void Graph::expand_rebro_index()
@@ -54,7 +54,7 @@ void Graph::expand_rebro_index()
 }
 
 
-// КОНСТРУКТОРЫ
+// конструкторы графа
 
 
 Graph::Graph() = default;
@@ -97,7 +97,7 @@ Graph& Graph::operator=(const Graph& other)
 }
 
 
-// ОПЕРАЦИИ С ВЕРШИНАМИ
+// всякое делаем с вершинами
 
 
 void Graph::add_vershina()
@@ -198,7 +198,7 @@ void Graph::remove_vershina(size_t m)
 }
 
 
-// АТРИБУТЫ ВЕРШИН
+// поля вершин
 
 
 void Graph::set_color_vershiny(size_t v, const string& color)
@@ -251,7 +251,7 @@ int Graph::get_component_vershiny(size_t v) const
 }
 
 
-// ОПЕРАЦИИ С РЁБРАМИ
+// делаем всякое с ребрами
 
 
 void Graph::add_rebro(size_t u, size_t v)
@@ -306,7 +306,7 @@ const vector<Rebro>& Graph::get_vse_rebra() const
 }
 
 
-// АТРИБУТЫ РЁБЕР
+// поля ребер
 
 
 void Graph::set_color_rebra(size_t u, size_t v, const string& color)
@@ -379,7 +379,7 @@ vector<vector<size_t>> Graph::get_components() const
 }
 
 
-// ОБХОД ОКРЕСТНОСТЕЙ
+// а что вокруг
 
 
 vector<size_t> Graph::get_sosedi(size_t v) const

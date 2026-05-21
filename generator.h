@@ -20,6 +20,6 @@ Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m);  // 11.
 Graph generate_graph_with_articulations_path_blobs_random(size_t n, size_t num_articulations);  // 12. Точки сочленения
 Graph generate_graph_with_2bridges(size_t n, size_t k); //13. 2-мосты
 
-// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ )
+// ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
 
 Graph generate_2connected_graph_random(size_t n, unsigned int seed = 42);  // 2-связный граф

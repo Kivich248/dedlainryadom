@@ -1,4 +1,3 @@
-
 #include "graph.h"
 #include "parser.h"
 #include "generator.h"
@@ -10,6 +9,7 @@
 #include <queue>
 #include <numeric>
 
+// рандомное из диапазона, я не помню где юзается честно, надо поискать
 size_t random_in_range(size_t min_val, size_t max_val)
 {
     if (min_val >= max_val) {
@@ -38,12 +38,12 @@ Graph generate_2connected_graph_random(size_t n, unsigned int seed)
     Graph g;
     g.add_vershiny(n);
 
- //крч сначала создаем цикл в котором сто проц мостов нет
+    // крч сначала создаем цикл в котором сто проц мостов нет
     for (size_t i = 0; i < n; i++) {
         g.add_rebro(i, (i + 1) % n);
     }
 
-    //потом добавляем еще ребрышки
+    // потом добавляем еще ребрышки
     double chord_prob = 0.3;
     for (size_t i = 0; i < n; i++) {
         for (size_t j = i + 2; j < n; j++) {
@@ -59,6 +59,7 @@ Graph generate_2connected_graph_random(size_t n, unsigned int seed)
     return g;
 }
 
+// полный граф, методика очев, 0ая вершина со всеми от 1ой до (n-1)ой, 1ая с всеми от 2ой до (n-1)ой
 Graph generate_full(size_t n)
 {
     Graph g;
@@ -73,6 +74,7 @@ Graph generate_full(size_t n)
 return g;
 } // 1
 
+// полный двудольный, методика очев
 Graph generate_full_twodol(size_t n, size_t m)
 {
     Graph g;
@@ -87,7 +89,9 @@ Graph generate_full_twodol(size_t n, size_t m)
     return g;
 } // 2
 
-Graph generate_tree(size_t n)   //генерим дерево восстанавливая по случайно сгенерированному коду прюфера
+// я честно не помню почему то add_vershina, то add_vershiny
+// рандомная генерация дерева по коду прюфера
+Graph generate_tree(size_t n)
 {
     Graph tree;
 
@@ -106,57 +110,69 @@ Graph generate_tree(size_t n)   //генерим дерево восстанав
         return tree;
     }
 
+    // дает рандом
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<size_t> dist(0, n - 1);
 
+    // используем кодирования прюфера
     std::vector<size_t> prufer(n - 2);
-    for (size_t i = 0; i < n - 2; i++) {
+    for (size_t i = 0; i < n - 2; i++)
+    {
         prufer[i] = dist(gen);
     }
 
-
-    std::vector<size_t> degree(n, 1);
-    for (size_t v : prufer) {
-        degree[v]++;
+    std::vector<size_t> degree(n, 1); // n элементов степени 1
+    for (size_t v : prufer)
+    {
+        degree[v]++;            // если номер вершины встречается в коде прюфера - с ней связана +1 вершина
     }
 
 
-    std::vector<bool> is_leaf(n, false);
-    for (size_t i = 0; i < n; i++) {
-        if (degree[i] == 1) {
+    std::vector<bool> is_leaf(n, false);        // массив листьев, булевый
+    for (size_t i = 0; i < n; i++)
+    {
+        if (degree[i] == 1)
+        {
             is_leaf[i] = true;
         }
     }
 
 
-    for (size_t i = 0; i < n - 2; i++) {
-
+    for (size_t i = 0; i < n - 2; i++)
+    {
         size_t leaf = 0;
-        while (!is_leaf[leaf]) {
+        while (!is_leaf[leaf])      // наименьший по номеру лист
+        {
             leaf++;
         }
 
 
-        tree.add_rebro(leaf, prufer[i]);
+        tree.add_rebro(leaf, prufer[i]);    // добавили ребро
 
 
-        is_leaf[leaf] = false;
-        degree[leaf]--;
+        is_leaf[leaf] = false;      // лист больше не лист
+        degree[leaf]--;             // степень вершины, которая была листом теперь 0 - то есть степени динамические
 
 
-        degree[prufer[i]]--;
-        if (degree[prufer[i]] == 1) {
-            is_leaf[prufer[i]] = true;
+        degree[prufer[i]]--;        // степень вершины i-го элемента кода прюфера -1
+        if (degree[prufer[i]] == 1)
+        {
+            is_leaf[prufer[i]] = true;      // если степень i-го элемента кода прюфера 1 - он становится "листом"
         }
     }
 
+    // в конце добавляем ласт ребро
     size_t last1 = 0, last2 = 0;
-    for (size_t i = 0; i < n; i++) {
-        if (degree[i] == 1) {
-            if (last1 == 0) {
+    for (size_t i = 0; i < n; i++)
+    {
+        if (degree[i] == 1)
+        {
+            if (last1 == 0)
+            {
                 last1 = i;
-            } else {
+            } else
+            {
                 last2 = i;
                 break;
             }
@@ -168,6 +184,7 @@ Graph generate_tree(size_t n)   //генерим дерево восстанав
     return tree;
 } // 3
 
+// методика очев, добавляем все ребра, инцидентные нулевой вершине
 Graph generate_star(size_t n)
 {
     Graph g;
@@ -179,6 +196,7 @@ Graph generate_star(size_t n)
     return g;
 } // 4
 
+// генерим "круг"
 Graph generate_cycle(size_t n)
 {
     Graph g;
@@ -191,6 +209,7 @@ Graph generate_cycle(size_t n)
     return g;
 } // 5
 
+// генерим просто ребра (i, i + 1)
 Graph generate_path(size_t n)
 {
     Graph g;
@@ -202,6 +221,7 @@ Graph generate_path(size_t n)
     return g;
 } // 6
 
+// колесо - это круг + звезда
 Graph generate_wheel(size_t n)
 {
     Graph g;
@@ -217,10 +237,13 @@ Graph generate_wheel(size_t n)
     {
         g.add_rebro(n - 1, i);
     }
-   return g;
+    return g;
 } // 7
 
-Graph random_veroyatnost(size_t n, double p) {        //окааааазывается это граф с n вершинами и вероятностью p добавления ребра
+// окааааазывается это граф с n вершинами и вероятностью p добавления ребра
+// проходимся по всем возможным комбинациям ребер с учетом перестановок, с помощью качественно рандома сверяем
+Graph random_veroyatnost(size_t n, double p)
+{
     Graph g;
 
     g.add_vershiny(n);
@@ -240,8 +263,13 @@ Graph random_veroyatnost(size_t n, double p) {        //окааааазывае
     return g;
 } // 8
 
-Graph generate_random_cubic(size_t n) {             //кубический граф как ты и сказал, делим вершины на 3 и соединяем
-
+// кубический граф, тут интересный алгоритм который придумали мы сами(!!!)
+// мы условно создаем 3 вершины для каждого n, то есть вершин 3n
+// перемешиваем их, а дальше соединяем соседние в массиве вершин величины 3n
+// получили петлю или кратное ребро? перезапуск (тут нужна была какая оптимизация, но мы не могли тогда себе это позволить)
+// получается что каждая из n вершин в массиве встречается 3 раза и получает 3 соседа
+Graph generate_random_cubic(size_t n)
+{
     if (n % 2 != 0)
     {
         throw std::invalid_argument("Кубический граф требует чётное количество вершин!");
@@ -287,8 +315,15 @@ Graph generate_random_cubic(size_t n) {             //кубический гр�
 
     return g;
 } // 9
-//генерим граф с фиксированным количеством компонент
-Graph generate_graph_with_components(size_t n, size_t k) {     //проблема - генерит ребра с фиксированной вероятностью
+
+
+// алгоритм снова наш
+// проблема - генерит ребра с фиксированной вероятностью, пофиксить можно, но некогда было + псведорандомный генератор, но это заметно как будто только если лезть в код
+// разбиваем n верши на k групп минимум по одному участнику - будущие компоненты
+// вершина одна - просто добавляем ее
+// вершин p - генерим путь на p вершинах - гарант связности и добавляем случайные ребра - псевдорандом то есть
+Graph generate_graph_with_components(size_t n, size_t k)
+{
     if (k > n) k = n;
     if (k == 0) k = 1;
     double extra_edge_probability = 0.3;
@@ -297,7 +332,7 @@ Graph generate_graph_with_components(size_t n, size_t k) {     //проблем�
     std::uniform_real_distribution<double> prob_dist(0.0, 1.0);
     std::uniform_int_distribution<size_t> comp_dist(0, k - 1);
 
-    //случайно делим вершинки на k групп
+    // случайно делим вершинки на k групп
     std::vector<size_t> component_sizes(k, 1);  // каждой компоненте минимум 1 вершина
     size_t remaining = n - k;
 
@@ -306,22 +341,22 @@ Graph generate_graph_with_components(size_t n, size_t k) {     //проблем�
         component_sizes[comp_dist(gen)]++;
     }
 
-    // создаем графичек
+    // создаем графы
     std::vector<Graph> components;
 
     for (size_t comp_idx = 0; comp_idx < k; comp_idx++) {
         size_t comp_size = component_sizes[comp_idx];
 
         if (comp_size == 1) {
-            // Компонента из одной вершины — просто добавляем вершину
+            // компонента из одной вершины — просто добавляем вершину
             Graph single;
             single.add_vershina();
             components.push_back(single);
         } else {
-            // Создаём путь на comp_size вершинах
+            // создаём путь на comp_size вершинах
             Graph path = generate_path(comp_size);
 
-            // Добавляем случайные дополнительные рёбра (делаем компоненту интереснее) (мне вот безумно интересно)
+            // добавляем случайные дополнительные рёбра (делаем компоненту интереснее) (мне вот безумно интересно)
             for (size_t i = 0; i < comp_size; i++) {
                 for (size_t j = i + 2; j < comp_size; j++) {  // j = i+2 чтобы не дублировать путь
                     if (prob_dist(gen) < extra_edge_probability) {
@@ -349,13 +384,16 @@ Graph generate_graph_with_components(size_t n, size_t k) {     //проблем�
     return result;
 }  // 10
 
-Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m)     //генерим графичек с фиксированным количеством мостиков
+// мы решили что граф должен быть связным
+// алгоритм на "блобах": генерим путь и прицепляем к нему блобы минимум по 2 вершины, среди которых не будет мостов
+Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m)
 {
     random_device rd;
     mt19937 gen(rd());
     uniform_real_distribution<double> prob_dist(0.0, 1.0);
     uniform_int_distribution<size_t> vertex_dist;
 
+    // не особо корректно, граф (2, 1) и (2, 0) возможны, как и (1, 0)
     if (n < 3) {
         throw invalid_argument("Minimalnoe kolichestvo vershin: 3");
     }
@@ -378,7 +416,8 @@ Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m)     //г
         }
         return path;
     }
-    // Случай m = n - 2: путь с одним "блобом" на 2 вершинках
+    // мы знаем что это неправильно но менять код в мае как-то не круто
+    // тут надо выкидывать ошибку потому что нереально сгенерировать n - 2 моста
     if (m == n - 2) {
         Graph g = generate_path(n - 1);  // Путь на n-1 вершинках = n-2 моста
         g.add_vershina();  // Добавляем последнюю вершинку
@@ -406,27 +445,34 @@ Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m)     //г
     size_t vershina_now = vershini_pyti;
     const size_t MIN_VERTICES_PER_BLOB = 2;
 
-    while (ost_vershini >= MIN_VERTICES_PER_BLOB) {
+    while (ost_vershini >= MIN_VERTICES_PER_BLOB)
+    {
+        // выбираем случайную вершину в пути
         vertex_dist = uniform_int_distribution<size_t>(0, vershini_pyti - 1);
         size_t vershina_pyti = vertex_dist(gen);
 
         vertex_dist = uniform_int_distribution<size_t>(MIN_VERTICES_PER_BLOB, ost_vershini);
         size_t blob_size = vertex_dist(gen);
 
-        if (blob_size == ost_vershini - 1) {
+        // ловим крайний случай, чтобы ласт блоб всегда был
+        if (blob_size == ost_vershini - 1)
+        {
             blob_size = ost_vershini;
         }
 
-        vector<size_t> vershini_bloba;
+        vector<size_t> vershini_bloba;                  // в массив закидываем вершину из пути + сгенерированное кол-во вершин блоба
         vershini_bloba.push_back(vershina_pyti);
-        for (size_t i = 0; i < blob_size; i++) {
+        for (size_t i = 0; i < blob_size; i++)
+        {
             vershini_bloba.push_back(vershina_now + i);
         }
 
-        // Создаём цикл в блоке
+        // Создаём цикл в блоке - гарант связности
         size_t k = vershini_bloba.size() - 1;
-        if (k >= 2) {
-            for (size_t i = 1; i < k; i++) {
+        if (k >= 2)
+        {
+            for (size_t i = 1; i < k; i++)
+            {
                 g.add_rebro(vershini_bloba[i], vershini_bloba[i + 1]);
             }
             g.add_rebro(vershini_bloba[1], vershina_pyti);
@@ -455,10 +501,14 @@ Graph generate_graph_with_bridges_path_blobs_random(size_t n, size_t m)     //г
     }
 
     return g;
-}
+}   // 11
 
 
-Graph generate_graph_with_articulations_path_blobs_random(size_t n, size_t k)       //графичек с заданным количеством точек сочленения (очень тяжело)
+// генератор плохой, он работает ток на случай при котором n > 3*k
+// куда лучше взять k + 1 блоб и соединять их по вершине, то есть на n + k вершинах создать k + 1 блоб, потом в каждом блобе рандомно выбрать точку и соединить этот
+// блоб со следующим с условием того что точка не будет точкой сочленения
+// но опять же писать код после дедлайна не круто
+Graph generate_graph_with_articulations_path_blobs_random(size_t n, size_t k)
 {
     random_device rd;
     mt19937 gen(rd());
@@ -604,7 +654,7 @@ Graph generate_graph_with_articulations_path_blobs_random(size_t n, size_t k)   
     return g;
 }
 
-//граф с заданным количеством 2-мостиков
+//граф с заданным количеством 2-мостиков (дерьмо)
 Graph generate_graph_with_2bridges(size_t n, size_t k) {
     if (n < 4) {
         throw std::invalid_argument("Minimalnoe kolichestvo vershin dlya 2-mostov: 4");
